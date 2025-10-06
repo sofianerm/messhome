@@ -118,8 +118,8 @@ export default function Dashboard() {
   const activeSectionName =
     allSections.find((s) => s.id === activeSection)?.name || "Vue générale";
 
-  // Déterminer si c'est la première connexion
-  const isFirstLogin = isAuthenticated && !settingsLoading && settings && !settings.family_name;
+  // Déterminer si c'est la première connexion (onboarding pas complété)
+  const isFirstLogin = isAuthenticated && !settingsLoading && (!settings || !settings.onboarding_completed);
 
   // Auth loading state
   if (authLoading || settingsLoading) {

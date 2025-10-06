@@ -51,7 +51,10 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
       // Dernière étape : sauvegarder et terminer
       setLoading(true);
       try {
-        await updateSettings(formData);
+        await updateSettings({
+          ...formData,
+          onboarding_completed: true // Marquer l'onboarding comme complété
+        });
         onComplete();
       } catch (error) {
         console.error('Error saving settings:', error);
@@ -69,7 +72,13 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = async () => {
+    // Marquer l'onboarding comme complété même si l'utilisateur passe
+    try {
+      await updateSettings({ onboarding_completed: true });
+    } catch (error) {
+      console.error('Error marking onboarding as completed:', error);
+    }
     onComplete();
   };
 
