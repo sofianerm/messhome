@@ -25,10 +25,18 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 3. Cliquer sur **Run**
 4. Vérifier que toutes les colonnes apparaissent dans le résultat
 
-#### Étape 2.3: ⚠️ **IMPORTANT** - Assigner les données existantes à votre utilisateur
+#### Étape 2.3: 🔧 Ajouter user_id à family_settings
+**CRITIQUE**: family_settings n'avait pas de user_id initialement !
+
+1. Copier le contenu du fichier `supabase/migrations/015_add_user_id_to_family_settings.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que la colonne user_id existe et est remplie
+
+#### Étape 2.4: ⚠️ **IMPORTANT** - Assigner TOUTES les données existantes à votre utilisateur
 **ATTENTION**: Cette étape est OBLIGATOIRE sinon l'app affichera "Chargement..." en boucle !
 
-1. Copier le contenu du fichier `supabase/migrations/014_assign_existing_data_to_user.sql`
+1. Copier le contenu du fichier `supabase/migrations/014_assign_existing_data_to_user_FIXED.sql`
 2. Coller dans l'éditeur SQL
 3. Cliquer sur **Run**
 4. Vérifier dans le résultat que toutes vos données ont un user_id

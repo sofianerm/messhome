@@ -78,7 +78,17 @@ BEGIN
     RAISE NOTICE 'packing_items: % lignes mises à jour', rows_updated;
   END IF;
 
-  -- NOTE: family_settings n'a PAS de user_id par design (paramètres globaux)
+  -- Family settings (vérifier si la colonne user_id existe)
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'family_settings' AND column_name = 'user_id'
+  ) THEN
+    UPDATE family_settings SET user_id = first_user_id WHERE user_id IS NULL;
+    GET DIAGNOSTICS rows_updated = ROW_COUNT;
+    RAISE NOTICE 'family_settings: % lignes mises à jour', rows_updated;
+  ELSE
+    RAISE NOTICE 'family_settings: colonne user_id non trouvée - exécutez migration 015 d''abord !';
+  END IF;
 
   -- Afficher le résumé
   RAISE NOTICE 'Migration terminée avec succès !';
