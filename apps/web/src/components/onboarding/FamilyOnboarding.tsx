@@ -55,10 +55,11 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
           ...formData,
           onboarding_completed: true // Marquer l'onboarding comme complété
         });
-        onComplete();
+
+        // Recharger la page pour forcer la mise à jour du state
+        window.location.reload();
       } catch (error) {
         console.error('Error saving settings:', error);
-      } finally {
         setLoading(false);
       }
     } else {
@@ -76,10 +77,11 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
     // Marquer l'onboarding comme complété même si l'utilisateur passe
     try {
       await updateSettings({ onboarding_completed: true });
+      // Recharger la page pour forcer la mise à jour du state
+      window.location.reload();
     } catch (error) {
       console.error('Error marking onboarding as completed:', error);
     }
-    onComplete();
   };
 
   const step = steps[currentStep];
