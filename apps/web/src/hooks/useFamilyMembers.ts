@@ -34,9 +34,13 @@ export function useFamilyMembers() {
   // Ajouter un membre
   const addMember = async (memberData: Omit<FamilyMemberInsert, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      // Récupérer l'utilisateur connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const newMember: FamilyMemberInsert = {
         ...memberData,
-        user_id: null as any,
+        user_id: user.id, // Utiliser l'ID de l'utilisateur connecté
         // Convertir les chaînes vides en null pour les champs optionnels
         birth_date: memberData.birth_date || null,
         email: memberData.email || null,
