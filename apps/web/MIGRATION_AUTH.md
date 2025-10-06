@@ -43,6 +43,16 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 
 **Pourquoi ?** Avec RLS activé, seules les données ayant un `user_id` correspondant à votre utilisateur sont visibles. Sans cette migration, toutes vos données existantes (repas, événements, notes, etc.) restent avec `user_id = NULL` donc invisibles.
 
+#### Étape 2.5: 🔴 **CRITIQUE SÉCURITÉ** - Corriger les politiques RLS
+**DANGER**: Sans cette étape, TOUS les utilisateurs voient les données de TOUS les autres !
+
+1. Copier le contenu du fichier `supabase/migrations/016_fix_rls_policies_CRITICAL.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que toutes les politiques affichent "✅ Sécurisé"
+
+**Pourquoi ?** Les anciennes politiques RLS utilisaient `USING (true)` ce qui donne accès à TOUTES les données à TOUS les utilisateurs. Cette migration remplace par `USING (auth.uid() = user_id)` pour isoler les données par utilisateur.
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
