@@ -25,6 +25,16 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 3. Cliquer sur **Run**
 4. Vérifier que toutes les colonnes apparaissent dans le résultat
 
+#### Étape 2.3: ⚠️ **IMPORTANT** - Assigner les données existantes à votre utilisateur
+**ATTENTION**: Cette étape est OBLIGATOIRE sinon l'app affichera "Chargement..." en boucle !
+
+1. Copier le contenu du fichier `supabase/migrations/014_assign_existing_data_to_user.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier dans le résultat que toutes vos données ont un user_id
+
+**Pourquoi ?** Avec RLS activé, seules les données ayant un `user_id` correspondant à votre utilisateur sont visibles. Sans cette migration, toutes vos données existantes (repas, événements, notes, etc.) restent avec `user_id = NULL` donc invisibles.
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
