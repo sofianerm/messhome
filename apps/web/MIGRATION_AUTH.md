@@ -53,6 +53,14 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 
 **Pourquoi ?** Les anciennes politiques RLS utilisaient `USING (true)` ce qui donne accès à TOUTES les données à TOUS les utilisateurs. Cette migration remplace par `USING (auth.uid() = user_id)` pour isoler les données par utilisateur.
 
+#### Étape 2.6: 🔴 **FIX** - Corriger Films et Voyages
+**Suite de l'étape 2.5** - Migration 016 a raté films/trips à cause de noms de politiques différents
+
+1. Copier le contenu du fichier `supabase/migrations/017_fix_films_trips_rls.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que films, trips, packing_items affichent tous "✅ Sécurisé"
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
