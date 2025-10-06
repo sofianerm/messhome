@@ -61,6 +61,19 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 3. Cliquer sur **Run**
 4. Vérifier que films, trips, packing_items affichent tous "✅ Sécurisé" et 1 seule politique par table
 
+#### Étape 2.7: ✨ Checklist voyage automatique pour chaque utilisateur
+**Feature** - Chaque nouvel utilisateur reçoit automatiquement la checklist voyage complète
+
+1. Copier le contenu du fichier `supabase/migrations/018_auto_create_default_packing_items.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que chaque utilisateur a ~107 items dans sa checklist
+
+**Ce que ça fait :**
+- Crée une table `default_packing_items` avec la liste template
+- Trigger automatique : copie la liste pour chaque nouveau profil créé
+- Crée la liste pour tous les utilisateurs existants qui n'en ont pas encore
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
