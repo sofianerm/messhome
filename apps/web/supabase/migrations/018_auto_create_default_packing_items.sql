@@ -124,7 +124,7 @@ CREATE OR REPLACE FUNCTION public.create_default_packing_items_for_user()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Copier tous les items par défaut pour le nouvel utilisateur
-  INSERT INTO packing_items (user_id, item, category, checked, "order")
+  INSERT INTO packing_items (user_id, item, category, checked, category_order)
   SELECT
     NEW.id,
     item,
@@ -164,7 +164,7 @@ BEGIN
 
     IF items_count = 0 THEN
       -- Créer la liste par défaut
-      INSERT INTO packing_items (user_id, item, category, checked, "order")
+      INSERT INTO packing_items (user_id, item, category, checked, category_order)
       SELECT
         user_record.id,
         item,
