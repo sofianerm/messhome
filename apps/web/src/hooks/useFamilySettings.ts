@@ -18,10 +18,30 @@ export function useFamilySettings() {
         .from('family_settings')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle(); // maybeSingle au lieu de single (accepte 0 ou 1 ligne)
 
-      if (error && error.code !== 'PGRST116') throw error; // PGRST116 = no rows
-      setSettings(data || null);
+      if (error) throw error;
+
+      // Si aucun settings n'existe, en créer un par défaut
+      if (!data) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: newSettings, error: insertError } = await supabase
+            .from('family_settings')
+            .insert({
+              user_id: user.id,
+              family_name: 'Ma Famille'
+            })
+            .select()
+            .single();
+
+          if (insertError) throw insertError;
+          setSettings(newSettings);
+        }
+      } else {
+        setSettings(data);
+      }
+
       setError(null);
     } catch (err) {
       console.error('Error fetching family settings:', err);
@@ -35,10 +55,13 @@ export function useFamilySettings() {
   const updateSettings = async (updates: Partial<FamilySettingsUpdate>) => {
     try {
       if (!settings?.id) {
-        // Si pas de settings, en créer un
+        // Si pas de settings, en créer un avec user_id
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) throw new Error('User not authenticated');
+
         const { data, error } = await supabase
           .from('family_settings')
-          .insert({ ...updates })
+          .insert({ ...updates, user_id: user.id })
           .select()
           .single();
 
