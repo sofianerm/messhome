@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run dev:*)",
+      "Bash(npm install)",
+      "Bash(npx react-router:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(curl:*)",
+      "Bash(rm:*)",
+      "Bash(mkdir:*)",
+      "Bash(taskkill:*)",
+      "Read(//c/Users/somes/Pictures/Screenshots/**)",
+      "WebFetch(domain:v0-train-cff.vercel.app)",
+      "WebSearch",
+      "WebFetch(domain:transport.opendata.ch)",
+      "WebFetch(domain:www.google.com)",
+      "WebFetch(domain:api.openrouteservice.org)",
+      "WebFetch(domain:router.project-osrm.org)",
+      "WebFetch(domain:maps.googleapis.com)",
+      "Bash(node:*)",
+      "Bash(timeout 15 npm run dev)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(for file in AgendaFamilial.tsx Voyages.tsx FamilySettings.tsx)",
+      "Bash(do echo \"=== $file ===\")",
+      "Bash(head:*)",
+      "Bash(done)",
+      "Bash(do tail -3 \"$file\")",
+      "Bash(git init:*)",
+      "Bash(git add:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nRefactorisation et optimisation complète du dashboard familial\n\n## Option A - Nettoyage erreurs ✅\n- Création du dossier apps/web/src/app/api/ pour éviter erreurs route-builder\n- Suppression erreurs console (distance-matrix, DocumentsUtiles)\n\n## Option B - Performance ✅\n- Lazy loading de tous les composants avec React.lazy() + Suspense\n- React.memo() sur les 5 plus gros composants:\n  - Transport.jsx (1067 lignes)\n  - Meteo.jsx (686 lignes)\n  - AgendaFamilial.tsx (665 lignes)\n  - Voyages.tsx (648 lignes)\n  - FamilySettings.tsx (507 lignes)\n\n## Option D - UX/Design ✅\n- Animations CSS (fadeIn, slideIn, scaleIn) dans global.css\n- Intégration Sonner toaster pour notifications\n- Transitions smooth sur toute l''app\n\n## Option C - Notes partagées ✅\n- Suppression NotesSection de Vue Générale\n- Nouvelle page dédiée NotesPartagees.tsx avec:\n  - Fonction pin/unpin (notes épinglées en premier)\n  - 6 couleurs disponibles\n  - Recherche/filtrage\n  - Dates d''affichage\n  - Formulaire inline harmonisé (comme Agenda)\n  - Real-time Supabase\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

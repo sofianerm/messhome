@@ -1,0 +1,308 @@
+import { useState } from 'react';
+import { UtensilsCrossed, Plus, X, Calendar } from 'lucide-react';
+import { useMeals } from '@/hooks/useMeals';
+
+export default function RepasMenus() {
+  const { meals, loading, error, addMeal, deleteMeal } = useMeals();
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newMeal, setNewMeal] = useState({
+    date: '',
+    meal_type: 'lunch' as 'breakfast' | 'lunch' | 'dinner' | 'snack',
+    title: '',
+    description: ''
+  });
+
+  const handleAddMeal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newMeal.date && newMeal.title) {
+      try {
+        await addMeal({
+          date: newMeal.date,
+          meal_type: newMeal.meal_type,
+          title: newMeal.title,
+          description: newMeal.description || null
+        });
+        setNewMeal({ date: '', meal_type: 'lunch', title: '', description: '' });
+        setShowAddForm(false);
+      } catch (err) {
+        console.error('Failed to add meal:', err);
+      }
+    }
+  };
+
+  const handleDeleteMeal = async (id: string) => {
+    try {
+      await deleteMeal(id);
+    } catch (err) {
+      console.error('Failed to delete meal:', err);
+    }
+  };
+
+  const getMealTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      breakfast: 'Petit-déjeuner',
+      lunch: 'Déjeuner',
+      dinner: 'Dîner',
+      snack: 'Goûter'
+    };
+    return labels[type] || type;
+  };
+
+  const getMealTypeColor = (type: string) => {
+    const colors: Record<string, string> = {
+      breakfast: 'bg-yellow-100 text-yellow-700',
+      lunch: 'bg-blue-100 text-blue-700',
+      dinner: 'bg-purple-100 text-purple-700',
+      snack: 'bg-pink-100 text-pink-700'
+    };
+    return colors[type] || 'bg-gray-100 text-gray-700';
+  };
+
+  // Générer les 7 prochains jours
+  const generateDays = () => {
+    const days = [];
+    const today = new Date();
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      days.push(date);
+    }
+    return days;
+  };
+
+  const days = generateDays();
+
+  // Grouper les repas par date
+  const getMealsForDate = (date: Date) => {
+    const dateStr = date.toISOString().split('T')[0];
+    return meals.filter(meal => meal.date === dateStr);
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('fr-FR', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    });
+  };
+
+  const isToday = (date: Date) => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <UtensilsCrossed size={24} className="text-[#2563FF]" />
+          <h2 className="text-[20px] font-semibold">Repas & menus</h2>
+        </div>
+        <div className="bg-white border border-[#F1F1F1] rounded-xl p-8 text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF] mx-auto mb-4"></div>
+          <p className="text-[14px] text-[#7A7A7A]">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-2">
+          <UtensilsCrossed size={24} className="text-[#2563FF]" />
+          <h2 className="text-[20px] font-semibold">Repas & menus</h2>
+        </div>
+        <div className="bg-white border border-[#F1F1F1] rounded-xl p-8 text-center">
+          <p className="text-[13px] text-red-600">❌ {error}</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <UtensilsCrossed size={24} className="text-[#2563FF]" />
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-[20px] font-semibold">Repas & menus</h2>
+              <span className="text-[11px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-medium">
+                🔥 LIVE
+              </span>
+            </div>
+            <p className="text-[13px] text-[#7A7A7A]">Planifiez vos repas de la semaine</p>
+          </div>
+        </div>
+        <button
+          onClick={() => setShowAddForm(true)}
+          className="h-10 px-4 bg-[#2563FF] text-white text-[13px] font-medium rounded-lg flex items-center gap-2 hover:bg-blue-600"
+        >
+          <Plus size={16} />
+          Ajouter un repas
+        </button>
+      </div>
+
+      {/* Formulaire d'ajout */}
+      {showAddForm && (
+        <div className="bg-white border border-[#F1F1F1] rounded-xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-[16px] font-semibold">Nouveau repas</h3>
+            <button
+              onClick={() => setShowAddForm(false)}
+              className="text-[#7A7A7A] hover:bg-gray-100 p-1 rounded"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <form onSubmit={handleAddMeal} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[13px] font-medium text-[#5C5C5C] mb-2">
+                  Date *
+                </label>
+                <input
+                  type="date"
+                  value={newMeal.date}
+                  onChange={(e) => setNewMeal({ ...newMeal, date: e.target.value })}
+                  className="w-full h-10 px-3 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF]"
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-[13px] font-medium text-[#5C5C5C] mb-2">
+                  Type de repas
+                </label>
+                <select
+                  value={newMeal.meal_type}
+                  onChange={(e) => setNewMeal({ ...newMeal, meal_type: e.target.value as any })}
+                  className="w-full h-10 px-3 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF]"
+                >
+                  <option value="breakfast">Petit-déjeuner</option>
+                  <option value="lunch">Déjeuner</option>
+                  <option value="dinner">Dîner</option>
+                  <option value="snack">Goûter</option>
+                </select>
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-[13px] font-medium text-[#5C5C5C] mb-2">
+                  Plat *
+                </label>
+                <input
+                  type="text"
+                  value={newMeal.title}
+                  onChange={(e) => setNewMeal({ ...newMeal, title: e.target.value })}
+                  className="w-full h-10 px-3 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF]"
+                  placeholder="Ex: Pâtes carbonara"
+                  required
+                />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-[13px] font-medium text-[#5C5C5C] mb-2">
+                  Description (optionnel)
+                </label>
+                <textarea
+                  value={newMeal.description}
+                  onChange={(e) => setNewMeal({ ...newMeal, description: e.target.value })}
+                  className="w-full px-3 py-2 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF] resize-none"
+                  rows={2}
+                  placeholder="Notes, recette, ingrédients..."
+                />
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="px-6 py-2 bg-[#2563FF] text-white text-[13px] font-medium rounded-lg hover:bg-blue-600"
+              >
+                Ajouter
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddForm(false)}
+                className="px-6 py-2 text-[#7A7A7A] text-[13px] font-medium hover:bg-gray-100 rounded-lg"
+              >
+                Annuler
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* Planning sur 7 jours */}
+      <div className="space-y-4">
+        {days.map((day) => {
+          const dayMeals = getMealsForDate(day);
+          return (
+            <div
+              key={day.toISOString()}
+              className={`bg-white border rounded-xl p-6 ${
+                isToday(day) ? 'border-[#2563FF] border-2' : 'border-[#F1F1F1]'
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Calendar size={16} className="text-[#2563FF]" />
+                <h3 className="text-[16px] font-semibold capitalize">
+                  {formatDate(day)}
+                  {isToday(day) && (
+                    <span className="ml-2 text-[11px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">
+                      Aujourd'hui
+                    </span>
+                  )}
+                </h3>
+              </div>
+
+              {dayMeals.length === 0 ? (
+                <p className="text-[13px] text-[#9B9B9B] text-center py-4">
+                  Aucun repas planifié
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {dayMeals
+                    .sort((a, b) => {
+                      const order = { breakfast: 0, lunch: 1, snack: 2, dinner: 3 };
+                      return order[a.meal_type as keyof typeof order] - order[b.meal_type as keyof typeof order];
+                    })
+                    .map((meal) => (
+                      <div
+                        key={meal.id}
+                        className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg group"
+                      >
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span
+                              className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${getMealTypeColor(
+                                meal.meal_type
+                              )}`}
+                            >
+                              {getMealTypeLabel(meal.meal_type)}
+                            </span>
+                          </div>
+                          <div className="text-[14px] font-medium text-[#2B2B2B]">
+                            {meal.title}
+                          </div>
+                          {meal.description && (
+                            <p className="text-[12px] text-[#7A7A7A] mt-1">
+                              {meal.description}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => handleDeleteMeal(meal.id)}
+                          className="opacity-0 group-hover:opacity-100 text-[#FF6A6A] hover:bg-red-50 p-1 rounded transition-opacity"
+                        >
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
