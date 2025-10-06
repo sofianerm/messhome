@@ -12,114 +12,15 @@ type EventFormData = {
   location: string;
 };
 
-// Composant TimePicker tactile avec carousel
+// Composant TimePicker simple avec input HTML natif
 function TimePicker({ value, onChange }: { value: string; onChange: (time: string) => void }) {
-  const [showPicker, setShowPicker] = useState(false);
-  const [hour, setHour] = useState('12');
-  const [minute, setMinute] = useState('00');
-
-  useEffect(() => {
-    if (value) {
-      const [h, m] = value.split(':');
-      setHour(h || '12');
-      setMinute(m || '00');
-    }
-  }, [value]);
-
-  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, '0'));
-  const minutes = ['00', '15', '30', '45'];
-
-  const handleConfirm = () => {
-    onChange(`${hour}:${minute}`);
-    setShowPicker(false);
-  };
-
-  const handleClear = () => {
-    onChange('');
-    setShowPicker(false);
-  };
-
   return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setShowPicker(!showPicker)}
-        className="w-full h-10 px-3 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF] text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-      >
-        <span className={value ? 'text-[#2B2B2B]' : 'text-[#9B9B9B]'}>
-          {value || 'Non spécifiée'}
-        </span>
-        <Clock size={14} className="text-[#7A7A7A]" />
-      </button>
-
-      {showPicker && (
-        <div className="absolute z-50 top-full mt-2 left-0 bg-white border-2 border-[#2563FF] rounded-xl shadow-xl p-3 w-64">
-          <div className="flex gap-2 mb-3">
-            {/* Heures */}
-            <div className="flex-1">
-              <div className="text-[10px] font-semibold text-[#7A7A7A] mb-1.5 text-center">H</div>
-              <div className="h-32 overflow-y-auto border border-[#E5E5E5] rounded-lg scroll-smooth scrollbar-thin">
-                {hours.map((h) => (
-                  <button
-                    key={h}
-                    type="button"
-                    onClick={() => setHour(h)}
-                    className={`w-full py-1.5 text-[14px] transition-all ${
-                      hour === h
-                        ? 'bg-[#2563FF] text-white font-bold'
-                        : 'text-[#2B2B2B] hover:bg-blue-50'
-                    }`}
-                  >
-                    {h}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex items-center text-[20px] font-bold text-[#2563FF] pt-6">:</div>
-
-            {/* Minutes */}
-            <div className="flex-1">
-              <div className="text-[10px] font-semibold text-[#7A7A7A] mb-1.5 text-center">M</div>
-              <div className="h-32 overflow-y-auto border border-[#E5E5E5] rounded-lg scroll-smooth">
-                {minutes.map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    onClick={() => setMinute(m)}
-                    className={`w-full py-3 text-[14px] transition-all ${
-                      minute === m
-                        ? 'bg-[#2563FF] text-white font-bold'
-                        : 'text-[#2B2B2B] hover:bg-blue-50'
-                    }`}
-                  >
-                    {m}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Boutons */}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={handleClear}
-              className="flex-1 px-3 py-1.5 border border-[#E5E5E5] text-[#7A7A7A] text-[12px] font-medium rounded-lg hover:bg-gray-50"
-            >
-              ✕
-            </button>
-            <button
-              type="button"
-              onClick={handleConfirm}
-              className="flex-2 px-3 py-1.5 bg-[#2563FF] text-white text-[12px] font-semibold rounded-lg hover:bg-blue-600 flex items-center justify-center gap-1"
-            >
-              ✓ {hour}:{minute}
-            </button>
-          </div>
-        </div>
-      )}
-    </div>
+    <input
+      type="time"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="w-full h-10 px-3 border border-[#E5E5E5] rounded-lg text-[13px] outline-none focus:border-[#2563FF]"
+    />
   );
 }
 

@@ -19,8 +19,13 @@ import {
   Film,
   Settings,
   StickyNote,
+  LogOut,
 } from "lucide-react";
 import { useFamilySettings } from "../hooks/useFamilySettings";
+import { useAuth } from "../hooks/useAuth";
+
+// Lazy load Auth Form
+const AuthForm = lazy(() => import("../components/auth/AuthForm"));
 
 // Lazy load components for better performance
 const VueGenerale = lazy(() => import("../components/sections/VueGenerale"));
@@ -102,6 +107,7 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("vue-generale");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { settings } = useFamilySettings();
+  const { isAuthenticated, loading: authLoading, signOut } = useAuth();
 
   // Chercher dans sections + paramètres
   const allSections = [...sections, parametresSection];
@@ -110,6 +116,32 @@ export default function Dashboard() {
   const activeSectionName =
     allSections.find((s) => s.id === activeSection)?.name || "Vue générale";
 
+  // Auth loading state
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF] mx-auto mb-4"></div>
+          <p className="text-[14px] text-[#7A7A7A]">Vérification de l'authentification...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Not authenticated - show login form
+  if (!isAuthenticated) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF]"></div>
+        </div>
+      }>
+        <AuthForm />
+      </Suspense>
+    );
+  }
+
+  // Authenticated - show dashboard
   return (
     <>
       <Toaster position="top-right" richColors />
@@ -175,13 +207,20 @@ export default function Dashboard() {
 
           {/* Footer sidebar */}
           {sidebarOpen && (
-            <div className="p-4 border-t border-[#EDEDED]">
+            <div className="p-4 border-t border-[#EDEDED] space-y-2">
               <button
                 onClick={() => setActiveSection('parametres')}
                 className="flex items-center gap-2 text-[12px] text-[#9B9B9B] hover:text-[#2563FF] transition-colors w-full"
               >
                 <User size={16} />
                 <span>{settings?.family_name || 'Famille Messaoudi'}</span>
+              </button>
+              <button
+                onClick={signOut}
+                className="flex items-center gap-2 text-[12px] text-[#9B9B9B] hover:text-red-500 transition-colors w-full"
+              >
+                <LogOut size={16} />
+                <span>Déconnexion</span>
               </button>
             </div>
           )}
