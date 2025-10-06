@@ -26,6 +26,7 @@ import { useAuth } from "../hooks/useAuth";
 
 // Lazy load Auth Form
 const AuthForm = lazy(() => import("../components/auth/AuthForm"));
+const FamilyOnboarding = lazy(() => import("../components/onboarding/FamilyOnboarding"));
 
 // Lazy load components for better performance
 const VueGenerale = lazy(() => import("../components/sections/VueGenerale"));
@@ -106,7 +107,8 @@ const parametresSection = {
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("vue-generale");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { settings } = useFamilySettings();
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const { settings, loading: settingsLoading } = useFamilySettings();
   const { isAuthenticated, loading: authLoading, signOut } = useAuth();
 
   // Chercher dans sections + paramètres
@@ -116,13 +118,16 @@ export default function Dashboard() {
   const activeSectionName =
     allSections.find((s) => s.id === activeSection)?.name || "Vue générale";
 
+  // Déterminer si c'est la première connexion
+  const isFirstLogin = isAuthenticated && !settingsLoading && settings && !settings.family_name;
+
   // Auth loading state
-  if (authLoading) {
+  if (authLoading || settingsLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF] mx-auto mb-4"></div>
-          <p className="text-[14px] text-[#7A7A7A]">Vérification de l'authentification...</p>
+          <p className="text-[14px] text-[#7A7A7A]">Chargement...</p>
         </div>
       </div>
     );
@@ -137,6 +142,19 @@ export default function Dashboard() {
         </div>
       }>
         <AuthForm />
+      </Suspense>
+    );
+  }
+
+  // First login - show onboarding
+  if ((isFirstLogin || showOnboarding) && !settingsLoading) {
+    return (
+      <Suspense fallback={
+        <div className="min-h-screen bg-white flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF]"></div>
+        </div>
+      }>
+        <FamilyOnboarding onComplete={() => setShowOnboarding(false)} />
       </Suspense>
     );
   }

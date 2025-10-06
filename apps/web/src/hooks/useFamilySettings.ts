@@ -22,26 +22,8 @@ export function useFamilySettings() {
 
       if (error) throw error;
 
-      // Si aucun settings n'existe, en créer un par défaut
-      if (!data) {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const { data: newSettings, error: insertError } = await supabase
-            .from('family_settings')
-            .insert({
-              user_id: user.id,
-              family_name: 'Ma Famille'
-            })
-            .select()
-            .single();
-
-          if (insertError) throw insertError;
-          setSettings(newSettings);
-        }
-      } else {
-        setSettings(data);
-      }
-
+      // Ne pas créer automatiquement - l'onboarding s'en charge
+      setSettings(data || null);
       setError(null);
     } catch (err) {
       console.error('Error fetching family settings:', err);
