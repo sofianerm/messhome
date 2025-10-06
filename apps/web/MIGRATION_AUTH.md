@@ -74,6 +74,16 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
 - Trigger automatique : copie la liste pour chaque nouveau profil créé
 - Crée la liste pour tous les utilisateurs existants qui n'en ont pas encore
 
+#### Étape 2.8: 🔒 Sécuriser default_packing_items avec RLS
+**Sécurité** - Activer RLS sur la table template
+
+1. Copier le contenu du fichier `supabase/migrations/019_add_rls_to_default_packing_items.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que :
+   - `default_packing_items` : Lecture publique (template)
+   - `packing_items` : Sécurisé par user_id
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
