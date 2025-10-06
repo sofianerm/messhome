@@ -84,6 +84,16 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
    - `default_packing_items` : Lecture publique (template)
    - `packing_items` : Sécurisé par user_id
 
+#### Étape 2.9: 🔴 **CRITIQUE** - ACTIVER RLS sur packing_items
+**DANGER**: RLS désactivé sur packing_items = Tous les users voient toutes les checklists !
+
+1. Copier le contenu du fichier `supabase/migrations/020_enable_rls_packing_items.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que :
+   - `packing_items` : `rls_enabled = true`
+   - Politique affiche "✅ Sécurisé par user_id"
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
