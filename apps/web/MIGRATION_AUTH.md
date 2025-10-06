@@ -94,6 +94,19 @@ La migration d'authentification doit être appliquée manuellement dans le dashb
    - `packing_items` : `rls_enabled = true`
    - Politique affiche "✅ Sécurisé par user_id"
 
+#### Étape 2.10: 🔧 Corriger les permissions des triggers
+**Fix** - Les triggers doivent bypasser RLS pour créer les données initiales
+
+1. Copier le contenu du fichier `supabase/migrations/021_fix_trigger_permissions.sql`
+2. Coller dans l'éditeur SQL
+3. Cliquer sur **Run**
+4. Vérifier que les deux triggers ont `security_definer = true`
+
+**Ce que ça corrige :**
+- Trigger `handle_new_user` : Peut créer le profil même avec RLS
+- Trigger `create_default_packing_items_for_user` : Peut créer la checklist même avec RLS
+- Gestion d'erreur ajoutée pour ne pas bloquer l'inscription
+
 ### 3. Vérifier l'installation
 
 Exécuter ces requêtes pour vérifier que tout fonctionne :
