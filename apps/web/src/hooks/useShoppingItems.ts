@@ -34,11 +34,14 @@ export function useShoppingItems() {
   // Ajouter un article
   const addItem = async (name: string, category?: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const newItem: ShoppingItemInsert = {
         name,
         category: category || null,
         checked: false,
-        user_id: null as any,
+        user_id: user.id,
       };
 
       const { data, error } = await supabase

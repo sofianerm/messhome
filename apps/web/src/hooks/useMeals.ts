@@ -34,9 +34,12 @@ export function useMeals() {
   // Ajouter un repas
   const addMeal = async (mealData: Omit<MealInsert, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const newMeal: MealInsert = {
         ...mealData,
-        user_id: null as any,
+        user_id: user.id,
       };
 
       const { data, error } = await supabase

@@ -34,12 +34,13 @@ export function useNotes() {
   // Ajouter une note
   const addNote = async (text: string, color: Note['color'] = 'yellow') => {
     try {
-      // Pour l'instant, on utilise null comme user_id (temporaire pour dev)
-      // TODO: Remplacer par l'ID de l'utilisateur connecté après l'auth
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const newNote: NoteInsert = {
         text,
         color,
-        user_id: null as any, // Temporaire : RLS désactivé pour le dev
+        user_id: user.id,
       };
 
       const { data, error } = await supabase

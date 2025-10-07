@@ -34,9 +34,12 @@ export function useFilms() {
   // Ajouter un film
   const addFilm = async (filmData: Omit<FilmInsert, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const newFilm: FilmInsert = {
         ...filmData,
-        user_id: null as any,
+        user_id: user.id,
       };
 
       const { data, error } = await supabase

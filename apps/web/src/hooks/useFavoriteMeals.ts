@@ -36,12 +36,15 @@ export function useFavoriteMeals() {
 
   const addFavorite = async (name: string, category?: string) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await supabase
         .from('favorite_meals')
         .insert({
           name,
           category: category || null,
-          user_id: null as any,
+          user_id: user.id,
         })
         .select()
         .single();
