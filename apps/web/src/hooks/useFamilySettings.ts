@@ -14,21 +14,47 @@ export function useFamilySettings() {
   const fetchSettings = async () => {
     try {
       setLoading(true);
+
+      // IMPORTANT: Vérifier d'abord que l'utilisateur est authentifié
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+      console.log('🔍 fetchSettings - User ID:', user?.id);
+
+      if (authError) {
+        console.error('Auth error:', authError);
+        setSettings(null);
+        setLoading(false);
+        return;
+      }
+
+      if (!user) {
+        console.log('⚠️ No user authenticated');
+        // Pas d'user = pas de settings (ne PAS retry en boucle)
+        setSettings(null);
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      // Récupérer les settings de l'utilisateur (RLS filtre automatiquement)
       const { data, error } = await supabase
         .from('family_settings')
         .select('*')
-        .limit(1)
-        .maybeSingle(); // maybeSingle au lieu de single (accepte 0 ou 1 ligne)
+        .eq('user_id', user.id) // Filtrer explicitement par user_id
+        .maybeSingle();
+
+      console.log('🔍 fetchSettings - Data:', data);
+      console.log('🔍 fetchSettings - Error:', error);
 
       if (error) throw error;
 
       // Ne pas créer automatiquement - l'onboarding s'en charge
       setSettings(data || null);
       setError(null);
+      setLoading(false); // Mettre loading à false SEULEMENT quand on a les données
     } catch (err) {
       console.error('Error fetching family settings:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch settings');
-    } finally {
       setLoading(false);
     }
   };

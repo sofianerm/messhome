@@ -32,11 +32,9 @@ export function useAuth() {
   useEffect(() => {
     loadSession();
 
-    // Écouter les changements d'auth
+    // Écouter les changements d'auth (Supabase gère le refresh automatiquement)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event);
-
         if (session?.user) {
           await loadProfile(session.user.id);
         } else {

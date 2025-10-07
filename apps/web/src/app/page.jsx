@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, lazy, Suspense, useEffect } from "react";
 import { Toaster } from "sonner";
 import "./global.css";
 import {
@@ -21,8 +21,7 @@ import {
   StickyNote,
   LogOut,
 } from "lucide-react";
-import { useFamilySettings } from "../hooks/useFamilySettings";
-import { useAuth } from "../hooks/useAuth";
+import { useAuthWithSettings } from "../hooks/useAuthWithSettings";
 
 // Lazy load Auth Form
 const AuthForm = lazy(() => import("../components/auth/AuthForm"));
@@ -107,9 +106,61 @@ const parametresSection = {
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("vue-generale");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const { settings, loading: settingsLoading } = useFamilySettings();
-  const { isAuthenticated, loading: authLoading, signOut } = useAuth();
+  const [forceStopLoading, setForceStopLoading] = useState(false);
+
+  // Hook unique qui gère tout: auth + settings + onboarding
+  const {
+    isAuthenticated,
+    needsOnboarding,
+    loading,
+    settings,
+    signOut,
+    reload
+  } = useAuthWithSettings();
+
+  // Watchdog: si loading dure plus de 15 secondes, forcer l'arrêt
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        console.error('⚠️ Loading timeout après 15s - forçage arrêt');
+        setForceStopLoading(true);
+      }, 15000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setForceStopLoading(false);
+    }
+  }, [loading]);
+
+  // Détecter quand la page redevient visible après inactivité
+  useEffect(() => {
+    let wasHidden = false;
+    let hiddenTime = 0;
+
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        wasHidden = true;
+        hiddenTime = Date.now();
+      } else if (wasHidden) {
+        const hiddenDuration = Date.now() - hiddenTime;
+        console.log(`👁️ Page visible après ${hiddenDuration}ms d'inactivité`);
+
+        // Si caché plus de 2 secondes, recharger pour éviter les bugs
+        if (hiddenDuration > 2000) {
+          console.warn('⚠️ Rechargement après veille');
+          window.location.reload();
+        }
+
+        wasHidden = false;
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, []);
 
   // Chercher dans sections + paramètres
   const allSections = [...sections, parametresSection];
@@ -118,11 +169,8 @@ export default function Dashboard() {
   const activeSectionName =
     allSections.find((s) => s.id === activeSection)?.name || "Vue générale";
 
-  // Déterminer si c'est la première connexion (onboarding pas complété)
-  const isFirstLogin = isAuthenticated && !settingsLoading && (!settings || !settings.onboarding_completed);
-
-  // Auth loading state
-  if (authLoading || settingsLoading) {
+  // Loading state
+  if (loading && !forceStopLoading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">
@@ -146,15 +194,15 @@ export default function Dashboard() {
     );
   }
 
-  // First login - show onboarding
-  if ((isFirstLogin || showOnboarding) && !settingsLoading) {
+  // Needs onboarding - show setup wizard
+  if (needsOnboarding) {
     return (
       <Suspense fallback={
         <div className="min-h-screen bg-white flex items-center justify-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#2563FF]"></div>
         </div>
       }>
-        <FamilyOnboarding onComplete={() => setShowOnboarding(false)} />
+        <FamilyOnboarding onComplete={() => reload()} />
       </Suspense>
     );
   }

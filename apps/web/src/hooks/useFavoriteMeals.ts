@@ -18,9 +18,26 @@ export function useFavoriteMeals() {
   const fetchFavorites = async () => {
     try {
       setLoading(true);
+
+      // Vérifier l'utilisateur authentifié avec timeout
+      const { data: { user } } = await Promise.race([
+        supabase.auth.getUser(),
+        new Promise<any>((_, reject) =>
+          setTimeout(() => reject(new Error('Auth timeout')), 5000)
+        )
+      ]);
+
+      if (!user) {
+        setFavorites([]);
+        setLoading(false);
+        return;
+      }
+
+      // Filtrer par user_id
       const { data, error } = await supabase
         .from('favorite_meals')
         .select('*')
+        .eq('user_id', user.id)
         .order('name', { ascending: true });
 
       if (error) throw error;
@@ -29,6 +46,7 @@ export function useFavoriteMeals() {
     } catch (err) {
       console.error('Error fetching favorite meals:', err);
       setError(err instanceof Error ? err.message : 'Failed to fetch favorites');
+      setFavorites([]); // Vider en cas d'erreur
     } finally {
       setLoading(false);
     }
