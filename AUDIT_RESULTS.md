@@ -276,19 +276,23 @@ WHERE user_id = '4bcec78a-50aa-4006-b64d-bd5123081e6e';
 
 ---
 
-### 6. Utilitaires créés (non utilisés finalement)
+### 6. Utilitaires créés puis supprimés
 
-#### `src/contexts/AuthContext.tsx`
+#### ~~`src/contexts/AuthContext.tsx`~~ ✅ SUPPRIMÉ
 Context React pour partager auth globalement (créé mais pas intégré, `useAuthWithSettings` suffit).
+**Supprimé dans commit `866b0c6`**
 
-#### `src/hooks/useAuthReady.ts`
+#### ~~`src/hooks/useAuthReady.ts`~~ ✅ SUPPRIMÉ
 Hook pour détecter quand auth est prête (créé mais pas utilisé, `useAuthWithSettings` le gère).
+**Supprimé dans commit `866b0c6`**
 
-#### `src/utils/debugLoops.ts`
+#### ~~`src/utils/debugLoops.ts`~~ ✅ SUPPRIMÉ
 Détection de boucles infinies dans hooks (créé mais pas intégré, pas nécessaire finalement).
+**Supprimé dans commit `866b0c6`**
 
-#### `src/utils/safeQuery.ts`
+#### ~~`src/utils/safeQuery.ts`~~ ✅ SUPPRIMÉ
 Wrapper pour requêtes avec timeout (créé mais pas utilisé, timeout ajouté directement dans `useAuthWithSettings`).
+**Supprimé dans commit `866b0c6`**
 
 ---
 
@@ -309,7 +313,7 @@ Wrapper pour requêtes avec timeout (créé mais pas utilisé, timeout ajouté d
 ### 🔄 Améliorations futures possibles
 1. Migrer vers production et tester le CSS
 2. Si problème CSS persiste, investiguer config Vite pour Chrome
-3. Supprimer les utilitaires non utilisés (AuthContext, useAuthReady, etc.)
+3. ~~Supprimer les utilitaires non utilisés~~ ✅ FAIT (commit `866b0c6`)
 4. Optimiser le watchdog 15s (peut-être trop long)
 5. Améliorer UX du reload automatique (afficher message "Rechargement...")
 
@@ -349,6 +353,8 @@ npm run dev
 
 ---
 
-**Commit SHA**: `c4cccbf`
+**Derniers commits**:
+- `866b0c6` - Refactor: Suppression fichiers non utilisés (2025-10-13)
+- `c4cccbf` - Fix: Problèmes session et onboarding multi-user (2025-10-07)
+
 **Branche**: `master`
-**Date commit**: 2025-10-07
