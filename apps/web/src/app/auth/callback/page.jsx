@@ -34,6 +34,9 @@ export default function AuthCallback() {
 
         console.log('✅ Session établie avec succès');
 
+        // Marquer qu'on vient juste de se connecter via OAuth
+        sessionStorage.setItem('oauth_just_connected', 'true');
+
         // Rediriger vers la page d'accueil
         navigate('/', { replace: true });
       } catch (err) {

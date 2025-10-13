@@ -39,16 +39,20 @@ export function useAuthWithSettings() {
     try {
       console.log('🔄 Loading user and settings...');
 
-      // 1. Charger la session avec timeout (Edge peut bloquer les requêtes)
+      // 1. Charger la session avec timeout (augmenté à 30s pour OAuth)
       const sessionPromise = supabase.auth.getSession();
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Session timeout après 10s')), 10000)
+        setTimeout(() => reject(new Error('Session timeout après 30s')), 30000)
       );
 
       const { data: { session }, error: sessionError } = await Promise.race([
         sessionPromise,
         timeoutPromise
-      ]);
+      ]).catch((err) => {
+        console.error('⏱️ Session timeout, retrying without timeout...');
+        // Si timeout, réessayer sans timeout
+        return supabase.auth.getSession();
+      });
 
       if (sessionError || !session?.user) {
         console.log('❌ No session');
@@ -72,13 +76,21 @@ export function useAuthWithSettings() {
         .maybeSingle();
 
       const settingsTimeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Settings timeout après 10s')), 10000)
+        setTimeout(() => reject(new Error('Settings timeout après 30s')), 30000)
       );
 
       const { data: settings, error: settingsError } = await Promise.race([
         settingsPromise,
         settingsTimeoutPromise
-      ]);
+      ]).catch((err) => {
+        console.error('⏱️ Settings timeout, retrying without timeout...');
+        // Si timeout, réessayer sans timeout
+        return supabase
+          .from('family_settings')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+      });
 
       if (settingsError) {
         console.error('❌ Error loading settings:', settingsError);
@@ -114,17 +126,30 @@ export function useAuthWithSettings() {
 
   // Charger au montage + écouter les changements d'auth
   useEffect(() => {
-    loadUserAndSettings();
+    // Si on vient juste de se connecter via OAuth, attendre les events
+    const justConnected = sessionStorage.getItem('oauth_just_connected');
+
+    if (justConnected) {
+      console.log('🔑 OAuth just connected, waiting for auth events...');
+      sessionStorage.removeItem('oauth_just_connected');
+      // Ne pas charger maintenant, attendre l'event SIGNED_IN/INITIAL_SESSION
+    } else {
+      loadUserAndSettings();
+    }
 
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth event:', event, 'loadingRef:', loadingRef.current);
-
-        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
-          // IMPORTANT: Débloquer loadingRef avant de recharger
-          // (cas où Edge a mis en veille et loadingRef est resté bloqué)
+        if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+          // IMPORTANT: Débloquer loadingRef IMMÉDIATEMENT avant de recharger
+          // (cas OAuth où le premier chargement est toujours en cours)
           loadingRef.current = false;
+
+          console.log('🔔 Auth event:', event, 'loadingRef après déblocage:', loadingRef.current);
+
+          // Attendre un peu que le callback finisse d'établir la session
+          await new Promise(resolve => setTimeout(resolve, 200));
+
           await loadUserAndSettings();
         } else if (event === 'SIGNED_OUT') {
           loadingRef.current = false; // Débloquer aussi
