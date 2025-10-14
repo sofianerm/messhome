@@ -106,7 +106,6 @@ const parametresSection = {
 export default function Dashboard() {
   const [activeSection, setActiveSection] = useState("vue-generale");
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [forceStopLoading, setForceStopLoading] = useState(false);
 
   // Hook unique qui gère tout: auth + settings + onboarding
   const {
@@ -118,49 +117,6 @@ export default function Dashboard() {
     reload
   } = useAuthWithSettings();
 
-  // Watchdog: si loading dure plus de 15 secondes, forcer l'arrêt
-  useEffect(() => {
-    if (loading) {
-      const timer = setTimeout(() => {
-        console.error('⚠️ Loading timeout après 15s - forçage arrêt');
-        setForceStopLoading(true);
-      }, 15000);
-
-      return () => clearTimeout(timer);
-    } else {
-      setForceStopLoading(false);
-    }
-  }, [loading]);
-
-  // Détecter quand la page redevient visible après inactivité
-  useEffect(() => {
-    let wasHidden = false;
-    let hiddenTime = 0;
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        wasHidden = true;
-        hiddenTime = Date.now();
-      } else if (wasHidden) {
-        const hiddenDuration = Date.now() - hiddenTime;
-        console.log(`👁️ Page visible après ${hiddenDuration}ms d'inactivité`);
-
-        // Si caché plus de 2 secondes, recharger pour éviter les bugs
-        if (hiddenDuration > 2000) {
-          console.warn('⚠️ Rechargement après veille');
-          window.location.reload();
-        }
-
-        wasHidden = false;
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
-  }, []);
 
   // Chercher dans sections + paramètres
   const allSections = [...sections, parametresSection];
@@ -170,7 +126,7 @@ export default function Dashboard() {
     allSections.find((s) => s.id === activeSection)?.name || "Vue générale";
 
   // Loading state
-  if (loading && !forceStopLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center">

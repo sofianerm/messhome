@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { User } from '@supabase/supabase-js';
 import type { Database } from '@/lib/database.types';
@@ -13,8 +13,8 @@ interface AuthWithSettingsState {
 }
 
 /**
- * Hook simplifié qui gère auth + settings en une seule passe
- * Évite les problèmes de synchronisation entre useAuth et useFamilySettings
+ * Hook simplifié qui gère auth + settings
+ * VERSION SIMPLE ET PROPRE - PAS DE COMPLICATIONS
  */
 export function useAuthWithSettings() {
   const [state, setState] = useState<AuthWithSettingsState>({
@@ -24,37 +24,15 @@ export function useAuthWithSettings() {
     needsOnboarding: false,
   });
 
-  // Protection anti-boucle
-  const loadingRef = useRef(false);
-
   // Fonction pour charger user + settings
   const loadUserAndSettings = async () => {
-    // Éviter les appels simultanés
-    if (loadingRef.current) {
-      console.log('⏭️ Already loading, skipping...');
-      return;
-    }
-
-    loadingRef.current = true;
     try {
       console.log('🔄 Loading user and settings...');
 
-      // 1. Charger la session avec timeout (augmenté à 30s pour OAuth)
-      const sessionPromise = supabase.auth.getSession();
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Session timeout après 30s')), 30000)
-      );
+      // 1. Charger la session
+      const { data: { session } } = await supabase.auth.getSession();
 
-      const { data: { session }, error: sessionError } = await Promise.race([
-        sessionPromise,
-        timeoutPromise
-      ]).catch((err) => {
-        console.error('⏱️ Session timeout, retrying without timeout...');
-        // Si timeout, réessayer sans timeout
-        return supabase.auth.getSession();
-      });
-
-      if (sessionError || !session?.user) {
+      if (!session?.user) {
         console.log('❌ No session');
         setState({
           user: null,
@@ -68,36 +46,14 @@ export function useAuthWithSettings() {
       const user = session.user;
       console.log('✅ User loaded:', user.id);
 
-      // 2. Charger les family_settings pour cet user avec timeout
-      const settingsPromise = supabase
+      // 2. Charger les family_settings
+      const { data: settings } = await supabase
         .from('family_settings')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      const settingsTimeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Settings timeout après 30s')), 30000)
-      );
-
-      const { data: settings, error: settingsError } = await Promise.race([
-        settingsPromise,
-        settingsTimeoutPromise
-      ]).catch((err) => {
-        console.error('⏱️ Settings timeout, retrying without timeout...');
-        // Si timeout, réessayer sans timeout
-        return supabase
-          .from('family_settings')
-          .select('*')
-          .eq('user_id', user.id)
-          .maybeSingle();
-      });
-
-      if (settingsError) {
-        console.error('❌ Error loading settings:', settingsError);
-      }
-
       console.log('📋 Settings loaded:', settings);
-      console.log('📋 onboarding_completed:', settings?.onboarding_completed);
 
       // 3. Déterminer si onboarding nécessaire
       const needsOnboarding = !settings || settings.onboarding_completed !== true;
@@ -119,40 +75,23 @@ export function useAuthWithSettings() {
         loading: false,
         needsOnboarding: false,
       });
-    } finally {
-      loadingRef.current = false;
     }
   };
 
   // Charger au montage + écouter les changements d'auth
   useEffect(() => {
-    // Si on vient juste de se connecter via OAuth, attendre les events
-    const justConnected = sessionStorage.getItem('oauth_just_connected');
-
-    if (justConnected) {
-      console.log('🔑 OAuth just connected, waiting for auth events...');
-      sessionStorage.removeItem('oauth_just_connected');
-      // Ne pas charger maintenant, attendre l'event SIGNED_IN/INITIAL_SESSION
-    } else {
-      loadUserAndSettings();
-    }
+    // Charger immédiatement
+    loadUserAndSettings();
 
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔔 Auth event:', event);
+
         if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
-          // IMPORTANT: Débloquer loadingRef IMMÉDIATEMENT avant de recharger
-          // (cas OAuth où le premier chargement est toujours en cours)
-          loadingRef.current = false;
-
-          console.log('🔔 Auth event:', event, 'loadingRef après déblocage:', loadingRef.current);
-
-          // Attendre un peu que le callback finisse d'établir la session
-          await new Promise(resolve => setTimeout(resolve, 200));
-
+          // Recharger quand l'auth change
           await loadUserAndSettings();
         } else if (event === 'SIGNED_OUT') {
-          loadingRef.current = false; // Débloquer aussi
           setState({
             user: null,
             settings: null,
@@ -163,17 +102,26 @@ export function useAuthWithSettings() {
       }
     );
 
-    // Détecter quand l'onglet redevient visible (Edge/Chrome mettent en veille)
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        console.log('👁️ Tab visible - checking if stuck...');
+    // Détecter quand l'onglet redevient visible (Edge bloque tout après veille)
+    let wasHidden = false;
+    let hiddenTime = 0;
 
-        // Si loadingRef bloqué depuis trop longtemps, débloquer
-        if (loadingRef.current && state.loading) {
-          console.warn('⚠️ LoadingRef bloqué - reset forcé');
-          loadingRef.current = false;
-          loadUserAndSettings();
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        wasHidden = true;
+        hiddenTime = Date.now();
+      } else if (wasHidden) {
+        const hiddenDuration = Date.now() - hiddenTime;
+        console.log(`👁️ Page visible après ${hiddenDuration}ms`);
+
+        // Si caché plus de 3 secondes, recharger la page
+        // (Edge bloque les connexions après mise en veille)
+        if (hiddenDuration > 3000) {
+          console.warn('⚠️ Rechargement après veille (Edge fix)');
+          window.location.reload();
         }
+
+        wasHidden = false;
       }
     };
 

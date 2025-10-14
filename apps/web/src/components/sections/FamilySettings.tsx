@@ -1,6 +1,7 @@
 import React, { useState, memo } from 'react';
 import { useFamilySettings } from '../../hooks/useFamilySettings';
 import { useFamilyMembers } from '../../hooks/useFamilyMembers';
+import { useAuthWithSettings } from '../../hooks/useAuthWithSettings';
 import { differenceInYears } from 'date-fns';
 import { Settings } from 'lucide-react';
 
@@ -17,6 +18,7 @@ const COLORS = [
 ];
 
 function FamilySettings() {
+  const { user } = useAuthWithSettings();
   const { settings, loading: settingsLoading, updateSettings } = useFamilySettings();
   const { members, loading: membersLoading, addMember, updateMember, deleteMember } = useFamilyMembers();
 
@@ -251,6 +253,9 @@ function FamilySettings() {
             </div>
           ) : (
             <div className="space-y-3 text-gray-700">
+              <div>
+                <span className="font-medium">Email du compte :</span> {user?.email || 'Non défini'}
+              </div>
               <div>
                 <span className="font-medium">Famille :</span> {settings?.family_name || 'Non défini'}
               </div>
