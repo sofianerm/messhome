@@ -43,8 +43,23 @@ export function useAuth() {
       }
     );
 
+    // FIX: Forcer la réinitialisation de la session quand l'onglet revient au focus
+    // Cela résout le problème de chargement infini quand Chrome est minimisé puis rouvert
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        // Forcer un refresh de session au wake de l'onglet
+        const { data: session } = await supabase.auth.getSession();
+        if (session?.session) {
+          await supabase.auth.refreshSession();
+        }
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       subscription.unsubscribe();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 

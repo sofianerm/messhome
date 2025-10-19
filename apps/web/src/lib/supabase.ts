@@ -15,3 +15,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true,
   },
 });
+
+// FIX: Forcer reconnexion Realtime au focus de la fenêtre
+// Résout le problème de chargement infini quand Chrome est minimisé puis rouvert
+if (typeof window !== 'undefined') {
+  window.addEventListener('focus', () => {
+    supabase.realtime.disconnect();
+    supabase.realtime.connect();
+  });
+}
