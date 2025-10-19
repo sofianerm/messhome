@@ -317,20 +317,24 @@ const useCodeGen = () => {
 };
 
 const useRefresh = () => {
-  useEffect(() => {
-    const handleMessage = (event: MessageEvent) => {
-      if (event.data.type === 'sandbox:web:refresh:request') {
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-        window.parent.postMessage({ type: 'sandbox:web:refresh:complete' }, '*');
-      }
-    };
-    window.addEventListener('message', handleMessage);
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, []);
+  // DÉSACTIVÉ: Hook sandbox qui peut causer des rechargements en boucle
+  // Seulement utile pour environnements sandbox cloud (Replit, etc.)
+  return null;
+
+  // useEffect(() => {
+  //   const handleMessage = (event: MessageEvent) => {
+  //     if (event.data.type === 'sandbox:web:refresh:request') {
+  //       setTimeout(() => {
+  //         window.location.reload();
+  //       }, 1000);
+  //       window.parent.postMessage({ type: 'sandbox:web:refresh:complete' }, '*');
+  //     }
+  //   };
+  //   window.addEventListener('message', handleMessage);
+  //   return () => {
+  //     window.removeEventListener('message', handleMessage);
+  //   };
+  // }, []);
 };
 
 export function Layout({ children }: { children: ReactNode }) {
