@@ -102,34 +102,11 @@ export function useAuthWithSettings() {
       }
     );
 
-    // Détecter quand l'onglet redevient visible (Edge bloque tout après veille)
-    let wasHidden = false;
-    let hiddenTime = 0;
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        wasHidden = true;
-        hiddenTime = Date.now();
-      } else if (wasHidden) {
-        const hiddenDuration = Date.now() - hiddenTime;
-        console.log(`👁️ Page visible après ${hiddenDuration}ms`);
-
-        // Si caché plus de 3 secondes, recharger la page
-        // (Edge bloque les connexions après mise en veille)
-        if (hiddenDuration > 3000) {
-          console.warn('⚠️ Rechargement après veille (Edge fix)');
-          window.location.reload();
-        }
-
-        wasHidden = false;
-      }
-    };
-
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    // SUPPRIMÉ: Le rechargement automatique causait des boucles infinies
+    // Supabase gère déjà la reconnexion automatiquement, pas besoin de forcer un reload
 
     return () => {
       subscription.unsubscribe();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
