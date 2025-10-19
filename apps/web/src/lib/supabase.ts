@@ -14,13 +14,11 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     detectSessionInUrl: true,
   },
+  realtime: {
+    // DÉSACTIVÉ: Supabase Realtime peut causer des boucles de reconnexion
+    // Si vous n'utilisez pas les subscriptions temps-réel, mieux vaut le désactiver
+    // eventsPerSecond: 2,
+  },
 });
 
-// FIX: Forcer reconnexion Realtime au focus de la fenêtre
-// Résout le problème de chargement infini quand Chrome est minimisé puis rouvert
-if (typeof window !== 'undefined') {
-  window.addEventListener('focus', () => {
-    supabase.realtime.disconnect();
-    supabase.realtime.connect();
-  });
-}
+// FIX RETIRÉ: La reconnexion Realtime causait aussi des boucles infinies
