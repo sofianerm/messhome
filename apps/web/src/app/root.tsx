@@ -19,7 +19,6 @@ import {
   type FC,
   Component,
 } from 'react';
-import './global.css';
 
 import fetch from '@/__create/fetch';
 // @ts-ignore
@@ -373,6 +372,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <link rel="stylesheet" href="/src/app/global.css" />
         <script type="module" src="/src/__create/dev-error-overlay.js"></script>
         <link rel="icon" href="/src/__create/favicon.png" />
         <LoadFonts />
