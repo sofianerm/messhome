@@ -19,13 +19,24 @@ export function useFavoriteMeals() {
     try {
       setLoading(true);
 
-      // Vérifier l'utilisateur authentifié avec timeout
-      const { data: { user } } = await Promise.race([
-        supabase.auth.getUser(),
-        new Promise<any>((_, reject) =>
-          setTimeout(() => reject(new Error('Auth timeout')), 5000)
-        )
-      ]);
+      // Vérifier l'utilisateur authentifié avec timeout plus long
+      let user = null;
+      try {
+        const result = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<any>((_, reject) =>
+            setTimeout(() => reject(new Error('Auth timeout')), 15000)
+          )
+        ]);
+        user = result.data?.user;
+      } catch (authError) {
+        // Si timeout auth, pas grave, on retourne juste vide
+        console.warn('Auth timeout, retrying later...', authError);
+        setFavorites([]);
+        setLoading(false);
+        setError(null); // Pas d'erreur visible pour l'utilisateur
+        return;
+      }
 
       if (!user) {
         setFavorites([]);
