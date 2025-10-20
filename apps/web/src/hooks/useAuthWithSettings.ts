@@ -85,15 +85,18 @@ export function useAuthWithSettings() {
     // Charger immédiatement
     loadUserAndSettings();
 
+    // Garder trace de l'userId actuel pour éviter rechargements inutiles
+    let lastUserId: string | null = null;
+
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('🔔 Auth event:', event, 'userId:', session?.user?.id);
 
-        const newUserId = session?.user?.id;
-        const currentUserId = authStore.getState().user?.id;
+        const newUserId = session?.user?.id || null;
 
         if (event === 'SIGNED_OUT') {
+          lastUserId = null;
           setState({
             user: null,
             settings: null,
@@ -104,8 +107,9 @@ export function useAuthWithSettings() {
           // WORKAROUND: Supabase émet SIGNED_IN au lieu de TOKEN_REFRESHED lors du focus
           // On recharge SEULEMENT si l'userId a changé (vrai nouveau sign-in)
           // Voir: https://github.com/supabase/supabase/issues/7250
-          if (newUserId !== currentUserId) {
+          if (newUserId !== lastUserId) {
             console.log('🆕 Nouvel utilisateur, rechargement settings');
+            lastUserId = newUserId;
             await loadUserAndSettings();
           } else {
             console.log('✅ Même user, ignoré (refresh token silencieux)');
