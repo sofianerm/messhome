@@ -1,15 +1,14 @@
 {
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs20.x"
-    },
-    "build/server/**/*.js": {
-      "runtime": "nodejs20.x"
-    }
-  },
   "buildCommand": "npm run build",
-  "outputDirectory": "build",
   "installCommand": "npm install",
+  "outputDirectory": "build/client",
+  "framework": null,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/build/server/index.js"
+    }
+  ],
   "env": {
     "NODE_ENV": "production",
     "NODE_VERSION": "20"

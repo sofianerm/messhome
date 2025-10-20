@@ -90,6 +90,9 @@ export function useAuthWithSettings() {
       async (event, session) => {
         console.log('🔔 Auth event:', event, 'userId:', session?.user?.id);
 
+        const newUserId = session?.user?.id;
+        const currentUserId = authStore.getState().user?.id;
+
         if (event === 'SIGNED_OUT') {
           setState({
             user: null,
@@ -98,8 +101,15 @@ export function useAuthWithSettings() {
             needsOnboarding: false,
           });
         } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-          // Avec multiTab: false, SIGNED_IN ne se déclenche que lors d'un vrai sign-in
-          await loadUserAndSettings();
+          // WORKAROUND: Supabase émet SIGNED_IN au lieu de TOKEN_REFRESHED lors du focus
+          // On recharge SEULEMENT si l'userId a changé (vrai nouveau sign-in)
+          // Voir: https://github.com/supabase/supabase/issues/7250
+          if (newUserId !== currentUserId) {
+            console.log('🆕 Nouvel utilisateur, rechargement settings');
+            await loadUserAndSettings();
+          } else {
+            console.log('✅ Même user, ignoré (refresh token silencieux)');
+          }
         }
         // TOKEN_REFRESHED est ignoré - pas besoin de recharger les settings
       }
