@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useFamilySettings } from '@/hooks/useFamilySettings';
+import { useFamilyMembers } from '@/hooks/useFamilyMembers';
 import GooglePlacesAutocomplete from '@/components/common/GooglePlacesAutocomplete';
 
 interface OnboardingStep {
@@ -23,6 +24,11 @@ const steps: OnboardingStep[] = [
     title: "Contact d'urgence",
     description: "Pour votre sécurité et celle de votre famille",
     fields: ['emergency_contact_name', 'emergency_contact_phone']
+  },
+  {
+    title: "Ajouter un membre",
+    description: "Ajoutez un premier membre de la famille (optionnel)",
+    fields: ['member_first_name', 'member_last_name', 'member_role', 'member_birth_date', 'member_email', 'member_phone']
   }
 ];
 
@@ -32,6 +38,7 @@ interface FamilyOnboardingProps {
 
 export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) {
   const { updateSettings } = useFamilySettings();
+  const { addMember } = useFamilyMembers();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState({
     family_name: '',
@@ -39,10 +46,22 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
     emergency_contact_name: '',
     emergency_contact_phone: '',
   });
+  const [memberData, setMemberData] = useState({
+    member_first_name: '',
+    member_last_name: '',
+    member_role: 'enfant' as 'papa' | 'maman' | 'enfant' | 'autre',
+    member_birth_date: '',
+    member_email: '',
+    member_phone: '',
+  });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    if (field.startsWith('member_')) {
+      setMemberData(prev => ({ ...prev, [field]: value }));
+    } else {
+      setFormData(prev => ({ ...prev, [field]: value }));
+    }
   };
 
   const handleNext = async () => {
@@ -52,8 +71,24 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
       try {
         await updateSettings({
           ...formData,
-          onboarding_completed: true // Marquer l'onboarding comme complété
+          onboarding_completed: true
         });
+
+        // Ajouter le membre si les champs sont remplis
+        if (memberData.member_first_name.trim() && memberData.member_last_name.trim()) {
+          await addMember({
+            first_name: memberData.member_first_name,
+            last_name: memberData.member_last_name,
+            role: memberData.member_role,
+            birth_date: memberData.member_birth_date || null,
+            email: memberData.member_email || null,
+            phone: memberData.member_phone || null,
+            color: '#2563FF',
+            allergies: null,
+            dietary_preferences: null,
+            whatsapp_notifications: false,
+          });
+        }
 
         // Recharger la page pour forcer la mise à jour du state
         window.location.reload();
@@ -90,7 +125,8 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
   // Vérifier si les champs requis sont remplis
   const canProceed = isWelcomeStep ||
     (currentStep === 1 && formData.family_name.trim() !== '') ||
-    (currentStep === 2); // Les contacts d'urgence sont optionnels
+    (currentStep === 2) || // Les contacts d'urgence sont optionnels
+    (currentStep === 3); // Les membres sont optionnels
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -155,24 +191,55 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
                     {field === 'home_address' && 'Adresse du domicile'}
                     {field === 'emergency_contact_name' && 'Nom du contact d\'urgence'}
                     {field === 'emergency_contact_phone' && 'Téléphone du contact d\'urgence'}
+                    {field === 'member_first_name' && 'Prénom'}
+                    {field === 'member_last_name' && 'Nom de famille'}
+                    {field === 'member_role' && 'Rôle'}
+                    {field === 'member_birth_date' && 'Date de naissance'}
+                    {field === 'member_email' && 'Email'}
+                    {field === 'member_phone' && 'Téléphone'}
                   </label>
                   {field === 'home_address' ? (
                     <GooglePlacesAutocomplete
-                      value={formData[field as keyof typeof formData]}
+                      value={formData.home_address}
                       onChange={(value) => handleInputChange(field, value)}
                       placeholder="Ex: 123 Rue de la Paix, Paris"
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     />
+                  ) : field === 'member_role' ? (
+                    <select
+                      value={memberData.member_role}
+                      onChange={(e) => handleInputChange(field, e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    >
+                      <option value="papa">👨 Papa</option>
+                      <option value="maman">👩 Maman</option>
+                      <option value="enfant">👶 Enfant</option>
+                      <option value="autre">👤 Autre</option>
+                    </select>
                   ) : (
                     <input
-                      type={field.includes('phone') ? 'tel' : 'text'}
-                      value={formData[field as keyof typeof formData]}
+                      type={
+                        field.includes('phone') ? 'tel' :
+                        field === 'member_birth_date' ? 'date' :
+                        field === 'member_email' ? 'email' :
+                        'text'
+                      }
+                      value={
+                        field.startsWith('member_')
+                          ? memberData[field as keyof typeof memberData]
+                          : formData[field as keyof typeof formData]
+                      }
                       onChange={(e) => handleInputChange(field, e.target.value)}
                       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                       placeholder={
                         field === 'family_name' ? 'Ex: Famille Dupont' :
                         field === 'emergency_contact_name' ? 'Ex: Marie Dupont' :
-                        'Ex: +33 6 12 34 56 78'
+                        field === 'emergency_contact_phone' ? 'Ex: +33 6 12 34 56 78' :
+                        field === 'member_first_name' ? 'Ex: Jean' :
+                        field === 'member_last_name' ? 'Ex: Dupont' :
+                        field === 'member_email' ? 'Ex: jean@email.com' :
+                        field === 'member_phone' ? 'Ex: +33 6 12 34 56 78' :
+                        ''
                       }
                     />
                   )}
