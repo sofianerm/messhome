@@ -458,27 +458,14 @@ function FamilySettings() {
           </div>
         )}
 
-      {/* Zone dangereuse */}
-      <div className="bg-white border-2 border-red-200 rounded-xl p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <Trash2 size={20} className="text-red-600" />
-          <h3 className="text-[16px] font-semibold text-red-600">Zone dangereuse</h3>
-        </div>
-
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600">
-            La suppression de votre compte est définitive et irréversible.
-            Toutes vos données seront définitivement supprimées.
-          </p>
-
-          <button
-            onClick={() => setShowDeleteModal(true)}
-            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
-          >
-            <Trash2 size={18} />
-            Supprimer définitivement mon compte
-          </button>
-        </div>
+      {/* Suppression compte */}
+      <div className="bg-white border border-gray-200 rounded-xl p-6">
+        <button
+          onClick={() => setShowDeleteModal(true)}
+          className="text-sm text-red-600 hover:text-red-700 hover:underline transition-colors"
+        >
+          Supprimer mon compte
+        </button>
       </div>
 
       {/* Modal de confirmation suppression compte */}
