@@ -89,7 +89,11 @@ export function useAuthWithSettings() {
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth event:', event);
+        console.log('🔔 Auth event:', event, {
+          userId: session?.user?.id,
+          expiresAt: session?.expires_at,
+          currentUserId,
+        });
 
         const newUserId = session?.user?.id || null;
 
