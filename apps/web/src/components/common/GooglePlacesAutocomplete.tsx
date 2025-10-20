@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
+import { useEffect, useRef } from 'react';
 
 interface GooglePlacesAutocompleteProps {
   value: string;
@@ -8,37 +7,62 @@ interface GooglePlacesAutocompleteProps {
   className?: string;
 }
 
-function PlacesAutocompleteInput({ value, onChange, placeholder, className }: GooglePlacesAutocompleteProps) {
+export default function GooglePlacesAutocomplete({
+  value,
+  onChange,
+  placeholder,
+  className
+}: GooglePlacesAutocompleteProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const placesLib = useMapsLibrary('places');
-  const [autocomplete, setAutocomplete] = useState<google.maps.places.Autocomplete | null>(null);
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
-    if (!placesLib || !inputRef.current) return;
+    const apiKey = import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyD481IBGxhmehhiFcP5BuuTpyzo23ytoAc';
 
-    // Initialiser l'autocomplete
-    const autocompleteInstance = new placesLib.Autocomplete(inputRef.current, {
-      fields: ['formatted_address', 'geometry', 'name'],
-      types: ['address'], // Seulement des adresses complètes
-      componentRestrictions: { country: ['ch', 'fr'] }, // Limiter à Suisse et France
+    if (!apiKey || !inputRef.current) return;
+
+    // Charger l'API Google Maps si pas déjà chargée
+    const loadGoogleMaps = () => {
+      return new Promise<void>((resolve) => {
+        if (typeof google !== 'undefined' && google.maps && google.maps.places) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+        script.async = true;
+        script.defer = true;
+        script.onload = () => resolve();
+        document.head.appendChild(script);
+      });
+    };
+
+    loadGoogleMaps().then(() => {
+      if (!inputRef.current) return;
+
+      // Initialiser l'autocomplete
+      autocompleteRef.current = new google.maps.places.Autocomplete(inputRef.current, {
+        fields: ['formatted_address', 'geometry', 'name'],
+        types: ['address'],
+        componentRestrictions: { country: ['ch', 'fr'] },
+      });
+
+      // Écouter les changements
+      autocompleteRef.current.addListener('place_changed', () => {
+        const place = autocompleteRef.current?.getPlace();
+        if (place?.formatted_address) {
+          onChange(place.formatted_address);
+        }
+      });
     });
-
-    // Écouter les changements de place
-    autocompleteInstance.addListener('place_changed', () => {
-      const place = autocompleteInstance.getPlace();
-      if (place.formatted_address) {
-        onChange(place.formatted_address);
-      }
-    });
-
-    setAutocomplete(autocompleteInstance);
 
     return () => {
-      if (autocomplete) {
-        google.maps.event.clearInstanceListeners(autocomplete);
+      if (autocompleteRef.current) {
+        google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, [placesLib, onChange]);
+  }, [onChange]);
 
   return (
     <input
@@ -48,29 +72,7 @@ function PlacesAutocompleteInput({ value, onChange, placeholder, className }: Go
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       className={className}
+      autoComplete="off"
     />
-  );
-}
-
-export default function GooglePlacesAutocomplete(props: GooglePlacesAutocompleteProps) {
-  const apiKey = import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyD481IBGxhmehhiFcP5BuuTpyzo23ytoAc';
-
-  if (!apiKey) {
-    // Fallback : input normal si pas d'API key
-    return (
-      <input
-        type="text"
-        value={props.value}
-        onChange={(e) => props.onChange(e.target.value)}
-        placeholder={props.placeholder}
-        className={props.className}
-      />
-    );
-  }
-
-  return (
-    <APIProvider apiKey={apiKey} libraries={['places']}>
-      <PlacesAutocompleteInput {...props} />
-    </APIProvider>
   );
 }
