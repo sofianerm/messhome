@@ -435,43 +435,6 @@ function FamilySettings() {
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Couleur</label>
-                  <div className="flex gap-2">
-                    {COLORS.map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setMemberForm({ ...memberForm, color })}
-                        className={`w-8 h-8 rounded-full border-2 transition-transform ${
-                          memberForm.color === color ? 'border-gray-800 scale-110' : 'border-gray-300'
-                        }`}
-                        style={{ backgroundColor: color }}
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Allergies alimentaires</label>
-                  <input
-                    type="text"
-                    value={memberForm.allergies}
-                    onChange={(e) => setMemberForm({ ...memberForm, allergies: e.target.value })}
-                    placeholder="Arachides, lactose..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563FF] focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Préférences alimentaires</label>
-                  <input
-                    type="text"
-                    value={memberForm.dietary_preferences}
-                    onChange={(e) => setMemberForm({ ...memberForm, dietary_preferences: e.target.value })}
-                    placeholder="Végétarien, sans gluten..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563FF] focus:border-transparent"
-                  />
-                </div>
 
                 <div className="flex items-center">
                   <input
