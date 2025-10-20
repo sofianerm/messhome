@@ -20,9 +20,9 @@ const steps: OnboardingStep[] = [
     fields: ['family_name', 'home_address']
   },
   {
-    title: "Contacts d'urgence",
+    title: "Contact d'urgence",
     description: "Pour votre sécurité et celle de votre famille",
-    fields: ['emergency_contact_name', 'emergency_contact_phone', 'doctor_name', 'doctor_phone']
+    fields: ['emergency_contact_name', 'emergency_contact_phone']
   }
 ];
 
@@ -38,8 +38,6 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
     home_address: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
-    doctor_name: '',
-    doctor_phone: '',
   });
   const [loading, setLoading] = useState(false);
 
@@ -157,8 +155,6 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
                     {field === 'home_address' && 'Adresse du domicile'}
                     {field === 'emergency_contact_name' && 'Nom du contact d\'urgence'}
                     {field === 'emergency_contact_phone' && 'Téléphone du contact d\'urgence'}
-                    {field === 'doctor_name' && 'Nom du médecin'}
-                    {field === 'doctor_phone' && 'Téléphone du médecin'}
                   </label>
                   {field === 'home_address' ? (
                     <GooglePlacesAutocomplete
@@ -176,9 +172,7 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
                       placeholder={
                         field === 'family_name' ? 'Ex: Famille Dupont' :
                         field === 'emergency_contact_name' ? 'Ex: Marie Dupont' :
-                        field === 'emergency_contact_phone' ? 'Ex: +33 6 12 34 56 78' :
-                        field === 'doctor_name' ? 'Ex: Dr. Martin' :
-                        'Ex: +33 1 23 45 67 89'
+                        'Ex: +33 6 12 34 56 78'
                       }
                     />
                   )}

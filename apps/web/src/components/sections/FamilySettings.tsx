@@ -30,8 +30,6 @@ function FamilySettings() {
     home_address: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
-    doctor_name: '',
-    doctor_phone: '',
   });
 
   // États pour l'ajout/édition de membre
@@ -56,8 +54,6 @@ function FamilySettings() {
       home_address: settings?.home_address || '',
       emergency_contact_name: settings?.emergency_contact_name || '',
       emergency_contact_phone: settings?.emergency_contact_phone || '',
-      doctor_name: settings?.doctor_name || '',
-      doctor_phone: settings?.doctor_phone || '',
     });
     setEditingSettings(true);
   };
@@ -210,32 +206,6 @@ function FamilySettings() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Médecin traitant
-                  </label>
-                  <input
-                    type="text"
-                    value={settingsForm.doctor_name}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, doctor_name: e.target.value })}
-                    placeholder="Dr. Dupont"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563FF] focus:border-transparent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Téléphone médecin
-                  </label>
-                  <input
-                    type="tel"
-                    value={settingsForm.doctor_phone}
-                    onChange={(e) => setSettingsForm({ ...settingsForm, doctor_phone: e.target.value })}
-                    placeholder="+33 1 23 45 67 89"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563FF] focus:border-transparent"
-                  />
-                </div>
-              </div>
 
               <div className="flex gap-2 pt-4">
                 <button
@@ -267,11 +237,6 @@ function FamilySettings() {
                 <span className="font-medium">Contact d'urgence :</span>{' '}
                 {settings?.emergency_contact_name || 'Non défini'}
                 {settings?.emergency_contact_phone && ` - ${settings.emergency_contact_phone}`}
-              </div>
-              <div>
-                <span className="font-medium">Médecin traitant :</span>{' '}
-                {settings?.doctor_name || 'Non défini'}
-                {settings?.doctor_phone && ` - ${settings.doctor_phone}`}
               </div>
             </div>
           )}
