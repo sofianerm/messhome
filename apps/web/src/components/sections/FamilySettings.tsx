@@ -5,6 +5,7 @@ import { useAuthWithSettings } from '../../hooks/useAuthWithSettings';
 import { differenceInYears } from 'date-fns';
 import { Settings, Trash2 } from 'lucide-react';
 import GooglePlacesAutocomplete from '../common/GooglePlacesAutocomplete';
+import DeleteAccountModal from '../common/DeleteAccountModal';
 import { supabase } from '../../lib/supabase';
 
 const ROLE_LABELS = {
@@ -36,6 +37,7 @@ function FamilySettings() {
   // États pour l'ajout/édition de membre
   const [showMemberForm, setShowMemberForm] = useState(false);
   const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [memberForm, setMemberForm] = useState({
     first_name: '',
     last_name: '',
@@ -114,24 +116,6 @@ function FamilySettings() {
   };
 
   const handleDeleteAccount = async () => {
-    const confirmation = prompt(
-      'ATTENTION : Cette action est irréversible !\n\n' +
-      'Toutes vos données seront définitivement supprimées :\n' +
-      '- Paramètres famille\n' +
-      '- Membres\n' +
-      '- Événements\n' +
-      '- Tâches\n' +
-      '- Repas\n' +
-      '- Listes de courses\n' +
-      '- Voyages\n' +
-      '- Et toutes les autres données\n\n' +
-      'Tapez "SUPPRIMER" pour confirmer'
-    );
-
-    if (confirmation !== 'SUPPRIMER') {
-      return;
-    }
-
     try {
       // Supprimer le compte Supabase (supprime aussi toutes les données via cascade)
       const { error } = await supabase.rpc('delete_user_account');
@@ -488,7 +472,7 @@ function FamilySettings() {
           </p>
 
           <button
-            onClick={handleDeleteAccount}
+            onClick={() => setShowDeleteModal(true)}
             className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
           >
             <Trash2 size={18} />
@@ -496,6 +480,13 @@ function FamilySettings() {
           </button>
         </div>
       </div>
+
+      {/* Modal de confirmation suppression compte */}
+      <DeleteAccountModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteAccount}
+      />
     </div>
   );
 }
