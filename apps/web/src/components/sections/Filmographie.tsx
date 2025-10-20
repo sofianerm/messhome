@@ -19,7 +19,13 @@ export default function Filmographie() {
 
     setIsSearching(true);
     try {
-      const TMDB_API_KEY = import.meta.env.NEXT_PUBLIC_TMDB_API_KEY || 'eeda9345e618f3c2d084c19a97de07c3';
+      const TMDB_API_KEY = import.meta.env.NEXT_PUBLIC_TMDB_API_KEY;
+      if (!TMDB_API_KEY) {
+        console.error('TMDB_API_KEY manquante');
+        setSearchResults([]);
+        setIsSearching(false);
+        return;
+      }
       console.log('TMDB API Key disponible:', !!TMDB_API_KEY);
 
       // Recherche multi (films + séries)

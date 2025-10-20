@@ -17,7 +17,7 @@ export default function GooglePlacesAutocomplete({
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
   useEffect(() => {
-    const apiKey = import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || 'AIzaSyD481IBGxhmehhiFcP5BuuTpyzo23ytoAc';
+    const apiKey = import.meta.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey || !inputRef.current) return;
 
