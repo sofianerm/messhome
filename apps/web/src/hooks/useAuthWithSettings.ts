@@ -80,6 +80,8 @@ export function useAuthWithSettings() {
 
   // Charger au montage + écouter les changements d'auth
   useEffect(() => {
+    console.log('🔵 useAuthWithSettings MOUNTED');
+
     // Charger immédiatement
     loadUserAndSettings();
 
