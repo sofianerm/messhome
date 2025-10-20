@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useFamilySettings } from '@/hooks/useFamilySettings';
+import GooglePlacesAutocomplete from '@/components/common/GooglePlacesAutocomplete';
 
 interface OnboardingStep {
   title: string;
@@ -159,20 +160,28 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
                     {field === 'doctor_name' && 'Nom du médecin'}
                     {field === 'doctor_phone' && 'Téléphone du médecin'}
                   </label>
-                  <input
-                    type={field.includes('phone') ? 'tel' : 'text'}
-                    value={formData[field as keyof typeof formData]}
-                    onChange={(e) => handleInputChange(field, e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
-                    placeholder={
-                      field === 'family_name' ? 'Ex: Famille Dupont' :
-                      field === 'home_address' ? 'Ex: 123 Rue de la Paix, Paris' :
-                      field === 'emergency_contact_name' ? 'Ex: Marie Dupont' :
-                      field === 'emergency_contact_phone' ? 'Ex: +33 6 12 34 56 78' :
-                      field === 'doctor_name' ? 'Ex: Dr. Martin' :
-                      'Ex: +33 1 23 45 67 89'
-                    }
-                  />
+                  {field === 'home_address' ? (
+                    <GooglePlacesAutocomplete
+                      value={formData[field as keyof typeof formData]}
+                      onChange={(value) => handleInputChange(field, value)}
+                      placeholder="Ex: 123 Rue de la Paix, Paris"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                    />
+                  ) : (
+                    <input
+                      type={field.includes('phone') ? 'tel' : 'text'}
+                      value={formData[field as keyof typeof formData]}
+                      onChange={(e) => handleInputChange(field, e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
+                      placeholder={
+                        field === 'family_name' ? 'Ex: Famille Dupont' :
+                        field === 'emergency_contact_name' ? 'Ex: Marie Dupont' :
+                        field === 'emergency_contact_phone' ? 'Ex: +33 6 12 34 56 78' :
+                        field === 'doctor_name' ? 'Ex: Dr. Martin' :
+                        'Ex: +33 1 23 45 67 89'
+                      }
+                    />
+                  )}
                 </div>
               ))}
             </div>
