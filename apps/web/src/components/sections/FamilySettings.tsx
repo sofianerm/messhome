@@ -3,8 +3,9 @@ import { useFamilySettings } from '../../hooks/useFamilySettings';
 import { useFamilyMembers } from '../../hooks/useFamilyMembers';
 import { useAuthWithSettings } from '../../hooks/useAuthWithSettings';
 import { differenceInYears } from 'date-fns';
-import { Settings } from 'lucide-react';
+import { Settings, Trash2 } from 'lucide-react';
 import GooglePlacesAutocomplete from '../common/GooglePlacesAutocomplete';
+import { supabase } from '../../lib/supabase';
 
 const ROLE_LABELS = {
   papa: '👨 Papa',
@@ -110,6 +111,42 @@ function FamilySettings() {
   const calculateAge = (birthDate: string | null) => {
     if (!birthDate) return null;
     return differenceInYears(new Date(), new Date(birthDate));
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmation = prompt(
+      'ATTENTION : Cette action est irréversible !\n\n' +
+      'Toutes vos données seront définitivement supprimées :\n' +
+      '- Paramètres famille\n' +
+      '- Membres\n' +
+      '- Événements\n' +
+      '- Tâches\n' +
+      '- Repas\n' +
+      '- Listes de courses\n' +
+      '- Voyages\n' +
+      '- Et toutes les autres données\n\n' +
+      'Tapez "SUPPRIMER" pour confirmer'
+    );
+
+    if (confirmation !== 'SUPPRIMER') {
+      return;
+    }
+
+    try {
+      // Supprimer le compte Supabase (supprime aussi toutes les données via cascade)
+      const { error } = await supabase.rpc('delete_user_account');
+
+      if (error) throw error;
+
+      // Déconnecter l'utilisateur
+      await supabase.auth.signOut();
+
+      // Recharger la page
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Erreur suppression compte:', error);
+      alert('Erreur lors de la suppression du compte. Veuillez réessayer.');
+    }
   };
 
   if (settingsLoading || membersLoading) {
@@ -436,6 +473,29 @@ function FamilySettings() {
             </div>
           </div>
         )}
+
+      {/* Zone dangereuse */}
+      <div className="bg-white border-2 border-red-200 rounded-xl p-6">
+        <div className="flex items-center gap-2 mb-4">
+          <Trash2 size={20} className="text-red-600" />
+          <h3 className="text-[16px] font-semibold text-red-600">Zone dangereuse</h3>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-sm text-gray-600">
+            La suppression de votre compte est définitive et irréversible.
+            Toutes vos données seront définitivement supprimées.
+          </p>
+
+          <button
+            onClick={handleDeleteAccount}
+            className="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium flex items-center gap-2"
+          >
+            <Trash2 size={18} />
+            Supprimer définitivement mon compte
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
