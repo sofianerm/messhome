@@ -85,23 +85,12 @@ export function useAuthWithSettings() {
     // Charger immédiatement
     loadUserAndSettings();
 
-    // Garder trace de l'user ID actuel pour éviter les rechargements inutiles
-    let currentUserId: string | null = null;
-
     // Écouter les changements d'authentification
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('🔔 Auth event:', event, {
-          userId: session?.user?.id,
-          expiresAt: session?.expires_at,
-          currentUserId,
-        });
+        console.log('🔔 Auth event:', event, 'userId:', session?.user?.id);
 
-        const newUserId = session?.user?.id || null;
-
-        // Seulement recharger si l'utilisateur a vraiment changé
         if (event === 'SIGNED_OUT') {
-          currentUserId = null;
           setState({
             user: null,
             settings: null,
@@ -109,21 +98,12 @@ export function useAuthWithSettings() {
             needsOnboarding: false,
           });
         } else if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-          // Seulement recharger si c'est un nouvel utilisateur
-          if (newUserId && newUserId !== currentUserId) {
-            console.log('🆕 Nouvel utilisateur détecté, rechargement...');
-            currentUserId = newUserId;
-            await loadUserAndSettings();
-          } else {
-            console.log('✅ Même utilisateur, pas de rechargement');
-          }
+          // Avec multiTab: false, SIGNED_IN ne se déclenche que lors d'un vrai sign-in
+          await loadUserAndSettings();
         }
         // TOKEN_REFRESHED est ignoré - pas besoin de recharger les settings
       }
     );
-
-    // SUPPRIMÉ: Le rechargement automatique causait des boucles infinies
-    // Supabase gère déjà la reconnexion automatiquement, pas besoin de forcer un reload
 
     return () => {
       subscription.unsubscribe();

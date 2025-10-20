@@ -13,6 +13,9 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
+    // Désactiver multi-tab évite les événements SIGNED_IN répétés au changement d'onglet
+    // Voir: https://github.com/supabase/supabase/issues/7250
+    multiTab: false,
   },
   realtime: {
     // DÉSACTIVÉ: Supabase Realtime peut causer des boucles de reconnexion
