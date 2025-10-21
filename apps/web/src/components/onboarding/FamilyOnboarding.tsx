@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFamilySettings } from '@/hooks/useFamilySettings';
 import { useFamilyMembers } from '@/hooks/useFamilyMembers';
+import { useAuthWithSettings } from '@/hooks/useAuthWithSettings';
 import GooglePlacesAutocomplete from '@/components/common/GooglePlacesAutocomplete';
 
 interface OnboardingStep {
@@ -37,6 +38,7 @@ interface FamilyOnboardingProps {
 }
 
 export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) {
+  const { user } = useAuthWithSettings();
   const { updateSettings } = useFamilySettings();
   const { addMember } = useFamilyMembers();
   const [currentStep, setCurrentStep] = useState(0);
@@ -49,12 +51,27 @@ export default function FamilyOnboarding({ onComplete }: FamilyOnboardingProps) 
   const [memberData, setMemberData] = useState({
     member_first_name: '',
     member_last_name: '',
-    member_role: 'enfant' as 'papa' | 'maman' | 'enfant' | 'autre',
+    member_role: 'papa' as 'papa' | 'maman' | 'enfant' | 'autre',
     member_birth_date: '',
     member_email: '',
     member_phone: '',
   });
   const [loading, setLoading] = useState(false);
+
+  // Pré-remplir les données du membre quand on arrive à l'étape 3 (Ajouter un membre)
+  useEffect(() => {
+    if (currentStep === 3 && user?.email) {
+      // Extraire le nom de famille depuis family_name (ex: "Famille Dupont" -> "Dupont")
+      const lastName = formData.family_name.replace(/^Famille\s+/i, '').trim();
+
+      setMemberData(prev => ({
+        ...prev,
+        member_last_name: lastName || '',
+        member_email: user.email || '',
+        member_role: 'papa',
+      }));
+    }
+  }, [currentStep, formData.family_name, user?.email]);
 
   const handleInputChange = (field: string, value: string) => {
     if (field.startsWith('member_')) {

@@ -194,7 +194,7 @@ function FamilySettings() {
                 </label>
                 <GooglePlacesAutocomplete
                   value={settingsForm.home_address}
-                  onChange={(value) => setSettingsForm({ ...settingsForm, home_address: value })}
+                  onChange={(value) => setSettingsForm(prev => ({ ...prev, home_address: value }))}
                   placeholder="Ex: 123 Rue de la Paix, Paris"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#2563FF] focus:border-transparent"
                 />

@@ -28,7 +28,7 @@ export default function VueGenerale() {
       // Fetch weather, prayer times, and transport data in parallel
       // Note: Les APIs publiques (Open-Meteo, CFF) n'ont pas besoin de proxy
       // L'API MasjidBox utilise une clé, on pourrait aussi la sécuriser côté serveur
-      const masjidBoxApiKey = import.meta.env.VITE_MASJIDBOX_API_KEY || 'JejYcMS7hsOsZTPDk2ZhKOAlW9IyQ6Px';
+      const masjidBoxApiKey = import.meta.env.NEXT_PUBLIC_MASJIDBOX_API_KEY;
 
       const [weatherResponse, prayerResponse, transportResponse, transportEVResponse] = await Promise.all([
         // Weather API - Genève (API publique)

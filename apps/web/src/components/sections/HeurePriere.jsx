@@ -8,7 +8,7 @@ export default function HeurePriere() {
   const [currentDate] = useState(new Date());
 
   // API MasjidBox
-  const API_KEY = import.meta.env.VITE_MASJIDBOX_API_KEY || '';
+  const API_KEY = import.meta.env.NEXT_PUBLIC_MASJIDBOX_API_KEY;
   const MASJID_SLUG = 'fondation-culturelle-islamique-de-geneve';
 
   useEffect(() => {
