@@ -5,7 +5,16 @@
       "Bash(git add:*)",
       "Bash(git remote add:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm install:*)",
+      "Bash(vercel --version:*)",
+      "Bash(if exist .vercel rmdir /s /q .vercel)",
+      "Bash(vercel --prod:*)",
+      "Bash(vercel logs:*)",
+      "Bash(vercel inspect:*)",
+      "Bash(git checkout:*)",
+      "Bash(git branch:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []
