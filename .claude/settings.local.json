@@ -5,7 +5,13 @@
       "Bash(git add:*)",
       "Bash(git remote add:*)",
       "Bash(git pull:*)",
-      "Bash(git stash:*)"
+      "Bash(git stash:*)",
+      "Bash(npm run dev:*)",
+      "Bash(rm:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npm run typecheck)",
+      "Bash(git branch:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
