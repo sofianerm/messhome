@@ -1,0 +1,46 @@
+{
+  "name": "messhome-web",
+  "description": "MeshHome Family Dashboard Web Application",
+  "billing": {
+    "deploymentPlan": "nf-compute-10"
+  },
+  "deployment": {
+    "instances": 1,
+    "docker": {
+      "configType": "default"
+    },
+    "storage": {
+      "ephemeralStorage": {
+        "storageSize": 1024
+      }
+    }
+  },
+  "ports": [
+    {
+      "name": "web",
+      "internalPort": 3000,
+      "public": true,
+      "protocol": "HTTP",
+      "security": {
+        "policies": []
+      }
+    }
+  ],
+  "vcsData": {
+    "projectUrl": "https://github.com/sofianerm/messhome",
+    "projectType": "github",
+    "accountLogin": "sofianerm",
+    "projectName": "messhome",
+    "projectBranch": "master"
+  },
+  "buildSettings": {
+    "dockerfile": {
+      "buildEngine": "kaniko",
+      "dockerFilePath": "/apps/web/Dockerfile",
+      "dockerWorkDir": "/"
+    }
+  },
+  "buildArguments": {},
+  "environmentVariables": {},
+  "runtimeFiles": {}
+}
