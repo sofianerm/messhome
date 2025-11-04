@@ -6,8 +6,8 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
-# Copy package files
-COPY package.json package-lock.json* ./
+# Copy package files from apps/web directory
+COPY apps/web/package.json apps/web/package-lock.json* ./
 
 # Install dependencies
 RUN npm ci
@@ -16,7 +16,7 @@ RUN npm ci
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY . .
+COPY apps/web/ .
 
 # Build the app
 RUN npm run build

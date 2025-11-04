@@ -1,0 +1,7 @@
+{
+  "dockerfile": {
+    "buildEngine": "kaniko",
+    "dockerFilePath": "/apps/web/Dockerfile",
+    "dockerWorkDir": "/"
+  }
+}
