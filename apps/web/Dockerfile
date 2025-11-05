@@ -37,9 +37,10 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 reactrouter
 
-# Copy built application
+# Copy built application and necessary config files
 COPY --from=builder --chown=reactrouter:nodejs /app/build ./build
 COPY --from=builder --chown=reactrouter:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=reactrouter:nodejs /app/react-router.config.ts ./react-router.config.ts
 COPY --from=builder --chown=reactrouter:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=reactrouter:nodejs /app/production-server.js ./production-server.js
 
