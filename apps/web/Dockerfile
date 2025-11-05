@@ -15,6 +15,11 @@ RUN npm ci
 # Build the application
 FROM base AS builder
 WORKDIR /app
+
+# Add build timestamp to bust cache for all subsequent layers
+ARG CACHEBUST=1
+RUN echo "Build timestamp: $CACHEBUST"
+
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/web/ .
 
