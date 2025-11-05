@@ -18,7 +18,8 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY apps/web/ .
 
-# Build the app
+# Clean any cached build artifacts and build fresh
+RUN rm -rf build .vite node_modules/.vite
 RUN npm run build
 
 # Production image
