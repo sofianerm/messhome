@@ -11,7 +11,16 @@
       "Bash(npx eslint:*)",
       "Bash(npm run typecheck)",
       "Bash(git branch:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(northflank:*)",
+      "Bash(node:*)",
+      "Bash(npm run build)",
+      "Bash(curl:*)",
+      "Bash(cat:*)",
+      "Bash(npx react-router-serve:*)",
+      "Bash(NODE_ENV=production PORT=4002 node -e \"import(''./build/server/index.js'').then(m => console.log(''Module loaded:'', typeof m.default))\")",
+      "Bash(NODE_ENV=production PORT=4005 node:*)",
+      "Read(//c/Users/somes/Documents/**)"
     ],
     "deny": [],
     "ask": []

@@ -9,7 +9,9 @@
     "dev": "react-router dev",
     "build": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc --noEmit"
+    "typecheck": "react-router typegen && tsc --noEmit",
+    "deploy:northflank": "node scripts/deploy-northflank.js",
+    "logs:northflank": "northflank service logs --project $NORTHFLANK_PROJECT_ID --service messhome-web --follow"
   },
   "dependencies": {
     "@babel/generator": "^7.27.1",

@@ -185,6 +185,14 @@ function AgendaFamilial() {
     });
   };
 
+  // Filtrer les événements pour ne garder que ceux à venir
+  const upcomingEvents = events.filter(event => {
+    const eventDate = new Date(event.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset à minuit pour comparer uniquement les dates
+    return eventDate >= today;
+  });
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -370,14 +378,14 @@ function AgendaFamilial() {
 
       {/* Liste des événements */}
       <div className="space-y-4">
-        {events.length === 0 ? (
+        {upcomingEvents.length === 0 ? (
           <div className="bg-white border border-[#F1F1F1] rounded-xl p-8 text-center">
             <Calendar size={48} className="text-[#C3C3C3] mx-auto mb-4" />
-            <p className="text-[#9B9B9B]">Aucun événement planifié</p>
+            <p className="text-[#9B9B9B]">Aucun événement à venir</p>
             <p className="text-[11px] text-[#C3C3C3] mt-1">Ajoutez votre premier événement ci-dessus !</p>
           </div>
         ) : (
-          events.map((event) => {
+          upcomingEvents.map((event) => {
             const isEditing = editingEvent === event.id;
 
             if (isEditing && editFormData) {

@@ -46,8 +46,9 @@ USER reactrouter
 EXPOSE 3000
 
 # Set host to 0.0.0.0 to accept connections from outside container
+ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 ENV PORT=3000
 
-# Start the server
-CMD ["./start-server.sh"]
+# Start the server directly using node with the production server script
+CMD ["node", "production-server.js"]

@@ -169,7 +169,20 @@ app.options('/api/distance-matrix', (c) => {
 
 app.route(API_BASENAME, api);
 
+console.log('🔧 About to call createHonoServer...');
+console.log(`   NODE_ENV: ${process.env.NODE_ENV}`);
+console.log(`   PORT: ${process.env.PORT}`);
+console.log(`   HOST: ${process.env.HOST}`);
+
 export default await createHonoServer({
   app,
-  defaultLogger: false,
+  defaultLogger: true, // Enable logging to see what's happening
+  port: parseInt(process.env.PORT || '3000', 10),
+  hostname: process.env.HOST || '0.0.0.0',
+  listeningListener: (info) => {
+    console.log(`\n🎉 MeshHome Server is LIVE!`);
+    console.log(`📡 Listening on: http://${info.address}:${info.port}`);
+    console.log(`🌍 Environment: ${process.env.NODE_ENV || 'production'}`);
+    console.log(`\n✅ Ready to accept connections!\n`);
+  },
 });

@@ -1,5 +1,4 @@
 #!/bin/sh
-set -e
 
 echo "=== Starting MeshHome Server ==="
 echo "Node version: $(node --version)"
@@ -9,11 +8,20 @@ echo "PORT: ${PORT}"
 echo "HOST: ${HOST}"
 echo "================================"
 
-# Start the server in the background and wait for it
-npx react-router-serve ./build/server/index.js --port 3000 --host 0.0.0.0 &
-SERVER_PID=$!
+# Infinite loop to keep restarting if server crashes
+while true; do
+    echo "Starting server..."
+    npm start
+    EXIT_CODE=$?
+    echo "Server exited with code: $EXIT_CODE"
 
-echo "Server started with PID: $SERVER_PID"
-
-# Wait for the server process
-wait $SERVER_PID
+    # If exit code is not 0, something went wrong
+    if [ $EXIT_CODE -ne 0 ]; then
+        echo "Server crashed! Restarting in 5 seconds..."
+        sleep 5
+    else
+        # Exit code 0 means clean shutdown - also restart but with shorter delay
+        echo "Server stopped cleanly. Restarting in 2 seconds..."
+        sleep 2
+    fi
+done
