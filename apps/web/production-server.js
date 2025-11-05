@@ -2,7 +2,7 @@
 // This script simply imports the built server module which automatically starts the HTTP server
 // The server stays alive because the HTTP listener keeps the event loop active
 
-import { serve } from '@hono/node-server';
+import { createHonoServer } from 'react-router-hono-server/node';
 
 console.log('🚀 Initializing MeshHome Production Server...');
 console.log(`   Node: ${process.version}`);
@@ -12,20 +12,20 @@ console.log(`   Host: ${process.env.HOST || '0.0.0.0'}`);
 console.log('');
 
 try {
-  // Import the Hono app
-  const { default: app, serverConfig } = await import('./build/server/index.js');
+  // Import the base Hono app with middlewares
+  const { default: baseApp, serverConfig } = await import('./build/server/index.js');
 
-  console.log('✅ Server module loaded successfully');
-  console.log('🔧 Starting HTTP server...');
+  console.log('✅ Base app module loaded successfully');
+  console.log('🔧 Creating full server with React Router integration...');
 
-  // Start the server directly with @hono/node-server
-  const server = serve({
-    fetch: app.fetch,
-    port: serverConfig.port,
-    hostname: serverConfig.hostname,
-  }, serverConfig.listeningListener);
+  // Create the full Hono server with React Router SSR
+  // This adds the React Router request handler and serves static files
+  await createHonoServer({
+    app: baseApp,
+    ...serverConfig,
+  });
 
-  console.log('📡 Server started and ready');
+  console.log('📡 Server with React Router started successfully');
 
 } catch (error) {
   console.error('❌ Failed to start server:', error);
