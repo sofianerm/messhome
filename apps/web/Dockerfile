@@ -46,4 +46,4 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 
 # Start the server
-CMD ["npm", "start"]
+CMD ["npx", "react-router-serve", "./build/server/index.js", "--port", "3000", "--host", "0.0.0.0"]
