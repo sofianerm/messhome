@@ -35,10 +35,7 @@ RUN adduser --system --uid 1001 reactrouter
 COPY --from=builder --chown=reactrouter:nodejs /app/build ./build
 COPY --from=builder --chown=reactrouter:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=reactrouter:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=reactrouter:nodejs /app/start-server.sh ./start-server.sh
-
-# Make script executable
-RUN chmod +x ./start-server.sh
+COPY --from=builder --chown=reactrouter:nodejs /app/production-server.js ./production-server.js
 
 USER reactrouter
 
