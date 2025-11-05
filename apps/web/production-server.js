@@ -2,7 +2,7 @@
 // This script simply imports the built server module which automatically starts the HTTP server
 // The server stays alive because the HTTP listener keeps the event loop active
 
-import { createHonoServer } from 'react-router-hono-server/node';
+import { serve } from '@hono/node-server';
 
 console.log('🚀 Initializing MeshHome Production Server...');
 console.log(`   Node: ${process.version}`);
@@ -12,19 +12,20 @@ console.log(`   Host: ${process.env.HOST || '0.0.0.0'}`);
 console.log('');
 
 try {
-  // Import the Hono app (no top-level await in the module now)
+  // Import the Hono app
   const { default: app, serverConfig } = await import('./build/server/index.js');
 
   console.log('✅ Server module loaded successfully');
-  console.log('🔧 Starting HTTP server with Hono...');
+  console.log('🔧 Starting HTTP server...');
 
-  // Start the server manually
-  await createHonoServer({
-    app,
-    ...serverConfig,
-  });
+  // Start the server directly with @hono/node-server
+  const server = serve({
+    fetch: app.fetch,
+    port: serverConfig.port,
+    hostname: serverConfig.hostname,
+  }, serverConfig.listeningListener);
 
-  console.log('📡 Server startup initiated');
+  console.log('📡 Server started and ready');
 
 } catch (error) {
   console.error('❌ Failed to start server:', error);
