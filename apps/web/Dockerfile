@@ -35,6 +35,10 @@ RUN adduser --system --uid 1001 reactrouter
 COPY --from=builder --chown=reactrouter:nodejs /app/build ./build
 COPY --from=builder --chown=reactrouter:nodejs /app/package.json ./package.json
 COPY --from=builder --chown=reactrouter:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=reactrouter:nodejs /app/start-server.sh ./start-server.sh
+
+# Make script executable
+RUN chmod +x ./start-server.sh
 
 USER reactrouter
 
@@ -46,4 +50,4 @@ ENV HOST=0.0.0.0
 ENV PORT=3000
 
 # Start the server
-CMD ["sh", "-c", "echo 'Starting server on port 3000...' && npx react-router-serve ./build/server/index.js --port 3000 --host 0.0.0.0"]
+CMD ["./start-server.sh"]
