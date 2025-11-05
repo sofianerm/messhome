@@ -20,7 +20,8 @@
       "Bash(npx react-router-serve:*)",
       "Bash(NODE_ENV=production PORT=4002 node -e \"import(''./build/server/index.js'').then(m => console.log(''Module loaded:'', typeof m.default))\")",
       "Bash(NODE_ENV=production PORT=4005 node:*)",
-      "Read(//c/Users/somes/Documents/**)"
+      "Read(//c/Users/somes/Documents/**)",
+      "Bash(NODE_ENV=production node:*)"
     ],
     "deny": [],
     "ask": []
