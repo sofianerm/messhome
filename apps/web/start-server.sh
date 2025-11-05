@@ -9,5 +9,11 @@ echo "PORT: ${PORT}"
 echo "HOST: ${HOST}"
 echo "================================"
 
-# Start the server and keep it running
-exec npx react-router-serve ./build/server/index.js --port 3000 --host 0.0.0.0
+# Start the server in the background and wait for it
+npx react-router-serve ./build/server/index.js --port 3000 --host 0.0.0.0 &
+SERVER_PID=$!
+
+echo "Server started with PID: $SERVER_PID"
+
+# Wait for the server process
+wait $SERVER_PID
