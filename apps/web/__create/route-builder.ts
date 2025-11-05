@@ -143,18 +143,13 @@ async function registerRoutes() {
 // Initial route registration
 await registerRoutes();
 
-// Hot reload routes in development
-if (import.meta.env.DEV) {
-  import.meta.glob('../src/app/api/**/route.{js,ts}', {
-    eager: true,
-  });
-  if (import.meta.hot) {
-    import.meta.hot.accept((newSelf) => {
-      registerRoutes().catch((err) => {
-        console.error('Error reloading routes:', err);
-      });
-    });
-  }
-}
+// Hot reload routes in development - completely removed in production to avoid "virtual:" imports
+// The import.meta.glob causes Vite to create virtual modules even in production builds
+// if (import.meta.env.DEV) {
+//   import.meta.glob('../src/app/api/**/route.{js,ts}', { eager: true });
+//   if (import.meta.hot) {
+//     import.meta.hot.accept(() => registerRoutes());
+//   }
+// }
 
 export { api, API_BASENAME };
